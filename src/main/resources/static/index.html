@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpaceWork - Sistema de Reservas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-light">
+    <div id="app" class="app-container">
+        <!-- Login Page -->
+        <div id="login-page" class="page">
+            <div class="login-wrapper">
+                <div class="card shadow-lg" style="width: 100%; max-width: 420px;">
+                    <div class="card-body p-5 text-center">
+                        <h1 class="mb-3" style="font-size: 3rem;">🏢</h1>
+                        <h2 class="h3 mb-2">SpaceWork Perú</h2>
+                        <p class="text-muted mb-4">Sistema de Gestión de Reservas</p>
+                        <form id="login-form">
+                            <div class="mb-3">
+                                <input type="text" id="username" class="form-control form-control-lg" placeholder="Usuario" required value="admin">
+                            </div>
+                            <div class="mb-3">
+                                <input type="password" id="password" class="form-control form-control-lg" placeholder="Contraseña" required value="admin123">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">Ingresar</button>
+                        </form>
+                        <div id="login-error" class="alert alert-danger d-none" role="alert"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page d-none">
+            <!-- Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+                <div class="container-fluid">
+                    <a class="navbar-brand fw-bold" href="#">🏢 SpaceWork Perú</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('dashboard')">📊 Dashboard</button></li>
+                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('reservas')">📅 Reservas</button></li>
+                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('espacios')">🏛️ Espacios</button></li>
+                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('clientes')">👥 Clientes</button></li>
+                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('pagos')">💳 Pagos</button></li>
+                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('descuentos')">🎁 Descuentos</button></li>
+                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('evaluaciones')">⭐ Evaluaciones</button></li>
+                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('notificaciones')">📬 Notificaciones</button></li>
+                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('horarios')">⏱️ Horarios</button></li>
+                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('reportes')">📋 Reportes</button></li>
+                            <li class="nav-item"><button class="nav-link btn btn-danger text-white" onclick="logout()">🚪 Salir</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Content -->
+            <div class="container-fluid pt-4 pb-4">
+                <!-- Dashboard Section -->
+                <div id="dashboard" class="section d-none">
+                    <h1 class="mb-4">📊 Dashboard</h1>
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card border-0 shadow-sm bg-primary text-white h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-uppercase small">Total Reservas</h6>
+                                    <h2 id="kpi-reservas" class="mb-0">0</h2>
+                                    <small id="kpi-reservas-detail" class="text-white-50"></small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card border-0 shadow-sm bg-success text-white h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-uppercase small">Confirmadas</h6>
+                                    <h2 id="kpi-confirmadas" class="mb-0">0</h2>
+                                    <small class="text-white-50">Esta semana</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card border-0 shadow-sm bg-info text-white h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-uppercase small">Espacios Activos</h6>
+                                    <h2 id="kpi-espacios" class="mb-0">0</h2>
+                                    <small class="text-white-50">Disponibles</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card border-0 shadow-sm bg-warning text-white h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-uppercase small">Ocupación</h6>
+                                    <h2 id="kpi-ocupacion" class="mb-0">0%</h2>
+                                    <small class="text-white-50">Promedio</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card border-0 shadow-sm bg-danger text-white h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-uppercase small">Total Clientes</h6>
+                                    <h2 id="kpi-clientes" class="mb-0">0</h2>
+                                    <small class="text-white-50">Registrados</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card border-0 shadow-sm bg-secondary text-white h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-uppercase small">Ingresos Totales</h6>
+                                    <h2 id="kpi-ingresos" class="mb-0">S/. 0.00</h2>
+                                    <small class="text-white-50">Completadas</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calendario Semanal -->
+                    <div class="row mt-5">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="mb-0">📅 Disponibilidad Semanal por Hora</h3>
+                                <div style="width: 250px;">
+                                    <label class="form-label fw-bold" style="font-size: 0.9rem;">Filtrar por Espacio:</label>
+                                    <select class="form-select form-select-sm" id="filtro-calendario-espacio" onchange="filtrarCalendarioPorEspacio()">
+                                        <option value="">-- Todos los espacios --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="table-responsive" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                                <table class="table table-sm table-bordered" style="margin-bottom: 0;">
+                                    <thead id="calendario-header" class="table-light" style="font-size: 0.85rem;"></thead>
+                                    <tbody id="calendario-body" style="font-size: 0.8rem;"></tbody>
+                                </table>
+                            </div>
+                            <div style="margin-top: 15px; font-size: 0.85rem;">
+                                <span style="display: inline-block; width: 20px; height: 20px; background: #28a745; margin-right: 10px; border-radius: 3px;"></span><strong>Disponible</strong> &nbsp;&nbsp;
+                                <span style="display: inline-block; width: 20px; height: 20px; background: #dc3545; margin-right: 10px; border-radius: 3px;"></span><strong>Ocupado</strong> &nbsp;&nbsp;
+                                <span style="display: inline-block; width: 20px; height: 20px; background: #ff9800; margin-right: 10px; border-radius: 3px;"></span><strong>Bloqueado</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reservas Section -->
+                <div id="reservas" class="section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1>📅 Mis Reservas</h1>
+                        <button class="btn btn-primary" onclick="abrirFormularioReserva()">+ Nueva Reserva</button>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="filtroReservas" placeholder="🔍 Buscar por cliente o espacio..." oninput="filtrarReservas()">
+                    </div>
+                    <div id="reservas-list" class="row g-3"></div>
+                </div>
+
+                <!-- Espacios Section -->
+                <div id="espacios" class="section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1>🏛️ Espacios Disponibles</h1>
+                        <button class="btn btn-primary" onclick="abrirFormularioEspacio()">+ Nuevo Espacio</button>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="filtroEspacios" placeholder="🔍 Buscar por nombre o tipo..." oninput="filtrarEspacios()">
+                    </div>
+                    <div id="espacios-grid" class="row g-3"></div>
+                </div>
+
+                <!-- Clientes Section -->
+                <div id="clientes" class="section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1>👥 Clientes</h1>
+                        <button class="btn btn-primary" onclick="abrirFormularioCliente()">+ Nuevo Cliente</button>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="filtroClientes" placeholder="🔍 Buscar por nombre, DNI o email..." oninput="filtrarClientes()">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Nombre Completo</th>
+                                    <th>DNI</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientes-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagos Section -->
+                <div id="pagos" class="section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h1 class="mb-0">💳 Gestión de Pagos</h1>
+                            <small class="text-muted">Los pagos se crean automáticamente con cada reserva confirmada</small>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="filtroPagos" placeholder="🔍 Buscar por reserva o monto..." oninput="filtrarPagos()">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-warning">
+                                <tr>
+                                    <th>ID Pago</th>
+                                    <th>Reserva #</th>
+                                    <th>Cliente</th>
+                                    <th>Monto</th>
+                                    <th>Método</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Registro</th>
+                                    <th>Fecha Pago</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pagos-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Descuentos Section -->
+                <div id="descuentos" class="section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1>🎁 Códigos de Descuento</h1>
+                        <button class="btn btn-primary" onclick="abrirFormularioDescuento()">+ Nuevo Descuento</button>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="filtroDescuentos" placeholder="🔍 Buscar por código o descripción..." oninput="filtrarDescuentos()">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-success">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descripción</th>
+                                    <th>Descuento %</th>
+                                    <th>Monto Mínimo</th>
+                                    <th>Vigencia</th>
+                                    <th>Usos</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="descuentos-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Evaluaciones Section -->
+                <div id="evaluaciones" class="section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1>⭐ Sistema de Evaluaciones</h1>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="filtroEvaluaciones" placeholder="🔍 Buscar por cliente o email..." oninput="filtrarEvaluaciones()">
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-info">
+                                <tr>
+                                    <th>Reserva #</th>
+                                    <th>Cliente</th>
+                                    <th>Email</th>
+                                    <th>Calificación</th>
+                                    <th>Comentario</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody id="evaluaciones-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Notificaciones Section -->
+                <div id="notificaciones" class="section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1>📬 Centro de Notificaciones</h1>
+                    </div>
+                    <div class="mb-3">
+                        <select class="form-control" id="filtroNotificaciones" onchange="filtrarNotificaciones()">
+                            <option value="">Todas las notificaciones</option>
+                            <option value="RESERVA">📅 Reservas</option>
+                            <option value="PAGO">💳 Pagos</option>
+                            <option value="EVALUACION">⭐ Evaluaciones Pendientes</option>
+                            <option value="RECORDATORIO">⏰ Recordatorios</option>
+                            <option value="PROMOCION">🎁 Promociones</option>
+                            <option value="SISTEMA">⚙️ Sistema</option>
+                        </select>
+                    </div>
+                    <div id="notificaciones-list" class="row g-3"></div>
+                </div>
+
+                <!-- Horarios Bloqueados Section -->
+                <div id="horarios" class="section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1>⏱️ Horarios Bloqueados</h1>
+                        <button class="btn btn-primary" onclick="abrirBloqueoDialog()">+ Bloquear Horario</button>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="filtroHorarios" placeholder="🔍 Buscar por espacio o razón..." oninput="filtrarHorarios()">
+                    </div>
+                    <div id="horarios-list" class="row g-3"></div>
+                </div>
+
+                <!-- Reportes Section -->
+                <div id="reportes" class="section d-none">
+                    <h1 class="mb-4">📋 Reportes y Exportación</h1>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm text-center">
+                                <div class="card-body py-5">
+                                    <h5 class="card-title mb-3">📅 Reservas</h5>
+                                    <button class="btn btn-primary w-100" onclick="exportarReservasCSV()">Descargar CSV</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm text-center">
+                                <div class="card-body py-5">
+                                    <h5 class="card-title mb-3">🏛️ Espacios</h5>
+                                    <button class="btn btn-primary w-100" onclick="exportarEspaciosCSV()">Descargar CSV</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm text-center">
+                                <div class="card-body py-5">
+                                    <h5 class="card-title mb-3">👥 Clientes</h5>
+                                    <button class="btn btn-primary w-100" onclick="exportarClientesCSV()">Descargar CSV</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cliente PREMIUM -->
+    <div class="modal fade" id="clienteModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header text-white border-0" id="clienteModalHeader" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
+                    <h5 class="modal-title fw-bold" id="clienteModalTitle">👤 Nuevo Cliente</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="clienteForm">
+                        <input type="hidden" id="clienteId">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-primary">👤 Nombre</label>
+                                <input type="text" class="form-control form-control-lg" id="clienteNombre" placeholder="Juan" style="border-color: #6366f1;" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-primary">👤 Apellido</label>
+                                <input type="text" class="form-control form-control-lg" id="clienteApellido" placeholder="Pérez" style="border-color: #6366f1;" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-primary">🆔 DNI</label>
+                                <input type="text" class="form-control form-control-lg" id="clienteDni" placeholder="12345678" style="border-color: #6366f1;" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-primary">📧 Email</label>
+                                <input type="email" class="form-control form-control-lg" id="clienteEmail" placeholder="correo@ejemplo.com" style="border-color: #6366f1;" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-primary">📱 Teléfono</label>
+                                <input type="text" class="form-control form-control-lg" id="clienteTelefono" placeholder="+51 987654321" style="border-color: #6366f1;" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary btn-lg px-4" onclick="guardarCliente()">💾 Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Espacio -->
+    <div class="modal fade" id="espacioModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="espacioModalTitle">Nuevo Espacio</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="espacioForm">
+                        <input type="hidden" id="espacioId">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="espacioNombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo</label>
+                            <select class="form-select" id="espacioTipo" required>
+                                <option value="">-- Seleccione el tipo --</option>
+                                <option value="SALA_REUNION">Sala de Reunión</option>
+                                <option value="OFICINA">Oficina</option>
+                                <option value="COWORKING">Coworking</option>
+                                <option value="AUDITORIO">Auditorio</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Capacidad</label>
+                            <input type="number" class="form-control" id="espacioCapacidad" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ubicación</label>
+                            <input type="text" class="form-control" id="espacioUbicacion" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Precio por Hora</label>
+                            <input type="number" step="0.01" class="form-control" id="espacioPrecio" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="guardarEspacio()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Reserva -->
+    <div class="modal fade" id="reservaModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Nueva Reserva</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="getModal('reservaModal').hide()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-0">
+                        <!-- Formulario izquierda -->
+                        <div class="col-md-5 pe-md-3 border-end">
+                            <form id="reservaForm">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Cliente</label>
+                                        <select class="form-select" id="reservaIdCliente" required>
+                                            <option value="">-- Seleccione un cliente --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Espacio</label>
+                                        <select class="form-select" id="reservaIdEspacio" required onchange="calcularMonto(); renderCalendarioDisponibilidad()">
+                                            <option value="">-- Seleccione un espacio --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Fecha y Hora Inicio</label>
+                                        <input type="datetime-local" class="form-control" id="reservaFechaInicio" required onchange="calcularMonto(); renderCalendarioDisponibilidad()">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Fecha y Hora Fin</label>
+                                        <input type="datetime-local" class="form-control" id="reservaFechaFin" required onchange="calcularMonto(); renderCalendarioDisponibilidad()">
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="alert alert-info d-none" id="monto-preview">
+                                            <strong>💰 Monto Estimado: </strong><span id="monto-valor">S/. 0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- Calendario derecha -->
+                        <div class="col-md-7 ps-md-3">
+                            <div id="calendario-disponibilidad">
+                                <div class="text-muted text-center py-5">
+                                    <i style="font-size:2rem">📅</i>
+                                    <p class="mt-2 mb-0">Selecciona un espacio para ver<br>la disponibilidad semanal</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="getModal('reservaModal').hide()">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="guardarReserva()">Crear Reserva</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmación -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header" id="confirmModalHeader">
+                    <h5 class="modal-title" id="confirmModalTitle">Confirmar acción</h5>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div id="confirmModalIcon" style="font-size:3rem;margin-bottom:1rem;"></div>
+                    <p id="confirmModalMessage" class="mb-0 fw-semibold" style="font-size:1.05rem;"></p>
+                </div>
+                <div class="modal-footer justify-content-center gap-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="confirmModalCancelBtn">Cancelar</button>
+                    <button type="button" class="btn" id="confirmModalOkBtn">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Bloqueo Horario -->
+    <div class="modal fade" id="bloqueoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">⏱️ Bloquear Horario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="bloqueoForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Espacio</label>
+                            <select class="form-select" id="bloqueoIdEspacio" required>
+                                <option value="">-- Seleccione un espacio --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Fecha y Hora Inicio</label>
+                            <input type="datetime-local" class="form-control" id="bloqueoFechaInicio" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Fecha y Hora Fin</label>
+                            <input type="datetime-local" class="form-control" id="bloqueoFechaFin" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Razón del bloqueo</label>
+                            <input type="text" class="form-control" id="bloqueoRazon" placeholder="Ej: Mantenimiento, limpieza..." required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" onclick="guardarBloqueo()">⏱️ Bloquear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
