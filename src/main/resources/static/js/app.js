@@ -28,6 +28,19 @@ function showConfirm({ message, icon = '⚠️', title = 'Confirmar acción', bt
 const API_BASE_URL = '/api';
 let currentUser = null;
 
+// Función para obtener headers autenticados
+function getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) {
+        headers['Authorization'] = 'Bearer ' + token;
+        console.log('✓ Token enviado en header');
+    } else {
+        console.warn('⚠ Sin token en localStorage');
+    }
+    return headers;
+}
+
 function getModal(id) {
     const el = document.getElementById(id);
     if (!el) return { show: () => {}, hide: () => {} };
@@ -81,6 +94,12 @@ async function handleLogin(event) {
         if (data.success) {
             currentUser = data.user;
             localStorage.setItem('user', JSON.stringify(data.user));
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+                console.log('✓ Token guardado en localStorage:', data.token.substring(0, 20) + '...');
+            } else {
+                console.warn('⚠ Backend no devolvió token:', data);
+            }
             showPage('dashboard');
             showSection('dashboard');
         } else {
@@ -138,7 +157,7 @@ function showSection(sectionName) {
 // ============================================================
 async function loadDashboard() {
     try {
-        const resRes = await fetch(`${API_BASE_URL}/reservas`);
+        const resRes = await fetch(`${API_BASE_URL}/reservas`, { headers: getAuthHeaders() });
         const resData = await resRes.json();
         const espaciosRes = await fetch(`${API_BASE_URL}/espacios`);
         const espaciosData = await espaciosRes.json();
@@ -184,7 +203,7 @@ let _calendario_data = null;
 
 async function loadCalendarioSemanal() {
     try {
-        const res = await fetch(`${API_BASE_URL}/calendario/semanal`);
+        const res = await fetch(`${API_BASE_URL}/calendario/semanal`, { headers: getAuthHeaders() });
         const data = await res.json();
         if (data.success && data.data) {
             _calendario_data = data.data;
@@ -307,7 +326,7 @@ async function loadReservas() {
         // Precargar clientes y espacios para rellenar datos en las tarjetas
         if (_allClientes.length === 0) {
             try {
-                const resClientes = await fetch(`${API_BASE_URL}/clientes`);
+                const resClientes = await fetch(`${API_BASE_URL}/clientes`, { headers: getAuthHeaders() });
                 const dataClientes = await resClientes.json();
                 if (dataClientes.success) _allClientes = dataClientes.data;
             } catch (e) {
@@ -317,7 +336,7 @@ async function loadReservas() {
         
         if (_allEspacios.length === 0) {
             try {
-                const resEspacios = await fetch(`${API_BASE_URL}/espacios`);
+                const resEspacios = await fetch(`${API_BASE_URL}/espacios`, { headers: getAuthHeaders() });
                 const dataEspacios = await resEspacios.json();
                 if (dataEspacios.success) _allEspacios = dataEspacios.data;
             } catch (e) {
@@ -325,7 +344,7 @@ async function loadReservas() {
             }
         }
         
-        const res = await fetch(`${API_BASE_URL}/reservas`);
+        const res = await fetch(`${API_BASE_URL}/reservas`, { headers: getAuthHeaders() });
         const data = await res.json();
         if (data.success && data.data) {
             _allReservas = data.data;
@@ -441,12 +460,12 @@ let _cacheEspacios = [];
 async function abrirFormularioReserva() {
     // Cargar clientes y espacios si no están en caché
     if (_cacheClientes.length === 0) {
-        const res = await fetch(`${API_BASE_URL}/clientes`);
+        const res = await fetch(`${API_BASE_URL}/clientes`, { headers: getAuthHeaders() });
         const data = await res.json();
         _cacheClientes = data.success ? data.data : [];
     }
     if (_cacheEspacios.length === 0) {
-        const res = await fetch(`${API_BASE_URL}/espacios`);
+        const res = await fetch(`${API_BASE_URL}/espacios`, { headers: getAuthHeaders() });
         const data = await res.json();
         _cacheEspacios = data.success ? data.data : [];
     }
@@ -554,7 +573,7 @@ async function confirmarReserva(id) {
         btnLabel: 'Sí, confirmar',
         btnClass: 'btn-success',
         onConfirm: async () => {
-            const res = await fetch(`${API_BASE_URL}/reservas/${id}/confirmar`, { method: 'PUT' });
+            const res = await fetch(`${API_BASE_URL}/reservas/${id}/confirmar`, { method: 'PUT', headers: getAuthHeaders() });
             const data = await res.json();
             showAlert(data.success ? 'success' : 'error', data.success ? '✅ Reserva confirmada' : data.error);
             if (data.success) loadReservas();
@@ -570,7 +589,7 @@ async function completarReserva(id) {
         btnLabel: 'Sí, completar',
         btnClass: 'btn-primary',
         onConfirm: async () => {
-            const res = await fetch(`${API_BASE_URL}/reservas/${id}/completar`, { method: 'PUT' });
+            const res = await fetch(`${API_BASE_URL}/reservas/${id}/completar`, { method: 'PUT', headers: getAuthHeaders() });
             const data = await res.json();
             showAlert(data.success ? 'success' : 'error', data.success ? '✅ Reserva completada - Ve a Pagos para pagar' : data.error);
             if (data.success) loadReservas();
@@ -586,7 +605,7 @@ async function cancelarReserva(id) {
         btnLabel: 'Sí, cancelar',
         btnClass: 'btn-danger',
         onConfirm: async () => {
-            const res = await fetch(`${API_BASE_URL}/reservas/${id}`, { method: 'DELETE' });
+            const res = await fetch(`${API_BASE_URL}/reservas/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
             const data = await res.json();
             showAlert(data.success ? 'success' : 'error', data.success ? '❌ Reserva cancelada' : data.error);
             if (data.success) loadReservas();
@@ -601,7 +620,7 @@ async function loadEspacios() {
     const container = document.getElementById('espacios-grid');
     container.innerHTML = '<div class="col-12"><p class="text-muted">Cargando espacios...</p></div>';
     try {
-        const res = await fetch(`${API_BASE_URL}/espacios`);
+        const res = await fetch(`${API_BASE_URL}/espacios`, { headers: getAuthHeaders() });
         const data = await res.json();
         if (data.success && data.data) {
             _allEspacios = data.data;
@@ -654,7 +673,7 @@ function abrirFormularioEspacio() {
 
 async function editarEspacio(id) {
     try {
-        const res = await fetch(`${API_BASE_URL}/espacios/${id}`);
+        const res = await fetch(`${API_BASE_URL}/espacios/${id}`, { headers: getAuthHeaders() });
         const data = await res.json();
         if (!data.success || !data.data) {
             showAlert('error', 'No se pudo cargar el espacio');
@@ -683,7 +702,7 @@ async function eliminarEspacio(id) {
         btnClass: 'btn-danger',
         onConfirm: async () => {
             try {
-                const res = await fetch(`${API_BASE_URL}/espacios/${id}`, { method: 'DELETE' });
+                const res = await fetch(`${API_BASE_URL}/espacios/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
                 const data = await res.json();
                 if (data.success) {
                     showAlert('success', 'Espacio eliminado correctamente');
@@ -737,7 +756,7 @@ async function loadClientes() {
     const container = document.getElementById('clientes-tbody');
     container.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr>';
     try {
-        const res = await fetch(`${API_BASE_URL}/clientes`);
+        const res = await fetch(`${API_BASE_URL}/clientes`, { headers: getAuthHeaders() });
         const data = await res.json();
         if (data.success && data.data) {
             _allClientes = data.data;
@@ -783,7 +802,7 @@ function abrirFormularioCliente() {
 
 async function editarCliente(id) {
     try {
-        const res = await fetch(`${API_BASE_URL}/clientes/${id}`);
+        const res = await fetch(`${API_BASE_URL}/clientes/${id}`, { headers: getAuthHeaders() });
         const data = await res.json();
         if (!data.success || !data.data) {
             showAlert('error', 'No se pudo cargar el cliente');
@@ -812,7 +831,7 @@ async function eliminarCliente(id) {
         btnClass: 'btn-danger',
         onConfirm: async () => {
             try {
-                const res = await fetch(`${API_BASE_URL}/clientes/${id}`, { method: 'DELETE' });
+                const res = await fetch(`${API_BASE_URL}/clientes/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
                 const data = await res.json();
                 if (data.success) {
                     showAlert('success', 'Cliente eliminado');
@@ -866,7 +885,7 @@ async function loadHorariosBloqueados() {
     const container = document.getElementById('horarios-list');
     container.innerHTML = '<div class="col-12"><p class="text-muted">Cargando horarios...</p></div>';
     try {
-        const res = await fetch(`${API_BASE_URL}/horarios`);
+        const res = await fetch(`${API_BASE_URL}/horarios`, { headers: getAuthHeaders() });
         const data = await res.json();
         if (data.success && data.data) {
             _allHorarios = data.data;
@@ -918,7 +937,7 @@ async function abrirBloqueoDialog() {
     const select = document.getElementById('bloqueoIdEspacio');
     select.innerHTML = '<option value="">-- Seleccione un espacio --</option>';
     try {
-        const res = await fetch(`${API_BASE_URL}/espacios`);
+        const res = await fetch(`${API_BASE_URL}/espacios`, { headers: getAuthHeaders() });
         const data = await res.json();
         if (data.success && data.data) {
             data.data.forEach(e => {
@@ -977,7 +996,7 @@ async function desbloquearHorario(id) {
         btnClass: 'btn-warning',
         onConfirm: async () => {
             try {
-                const res = await fetch(`${API_BASE_URL}/horarios/${id}`, { method: 'DELETE' });
+                const res = await fetch(`${API_BASE_URL}/horarios/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
                 const data = await res.json();
                 if (data.success) {
                     showAlert('success', 'Horario desbloqueado');
@@ -1132,7 +1151,7 @@ function filtrarHorarios() {
 // ============================================================
 async function validarDisponibilidadEspacio(idEspacio, fechaInicio, fechaFin) {
     try {
-        const res = await fetch(`${API_BASE_URL}/horarios`);
+        const res = await fetch(`${API_BASE_URL}/horarios`, { headers: getAuthHeaders() });
         const data = await res.json();
         if (!data.success || !data.data) return true;
 
@@ -1159,7 +1178,7 @@ async function validarDisponibilidadEspacio(idEspacio, fechaInicio, fechaFin) {
 
 async function validarSinReservaExistente(idEspacio, fechaInicio, fechaFin) {
     try {
-        const res = await fetch(`${API_BASE_URL}/reservas`);
+        const res = await fetch(`${API_BASE_URL}/reservas`, { headers: getAuthHeaders() });
         const data = await res.json();
         if (!data.success || !data.data) return true;
 
@@ -1189,7 +1208,7 @@ let _allPagos = [];
 
 async function cargarPagos() {
     try {
-        const res = await fetch(`${API_BASE_URL}/pagos`);
+        const res = await fetch(`${API_BASE_URL}/pagos`, { headers: getAuthHeaders() });
         const data = await res.json();
         _allPagos = data.success ? (data.data || []) : [];
         renderPagos(_allPagos);
@@ -1447,7 +1466,7 @@ let _allDescuentos = [];
 
 async function cargarDescuentos() {
     try {
-        const res = await fetch(`${API_BASE_URL}/descuentos`);
+        const res = await fetch(`${API_BASE_URL}/descuentos`, { headers: getAuthHeaders() });
         const data = await res.json();
         _allDescuentos = data.success ? (data.data || []) : [];
         renderDescuentos(_allDescuentos);
@@ -1500,7 +1519,7 @@ function abrirFormularioDescuento() {
 
 async function editarDescuento(id) {
     try {
-        const res = await fetch(`${API_BASE_URL}/descuentos/${id}`);
+        const res = await fetch(`${API_BASE_URL}/descuentos/${id}`, { headers: getAuthHeaders() });
         const data = await res.json();
         if (!data.success || !data.data) { showAlert('error', 'No se pudo cargar el descuento'); return; }
         _abrirDescuentoModal(data.data);
@@ -1658,7 +1677,7 @@ async function eliminarDescuento(id) {
         btnClass: 'btn-danger',
         onConfirm: async () => {
             try {
-                const res = await fetch(`${API_BASE_URL}/descuentos/${id}`, { method: 'DELETE' });
+                const res = await fetch(`${API_BASE_URL}/descuentos/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
                 const data = await res.json();
                 if (data.success) {
                     showAlert('success', 'Descuento desactivado');
@@ -1680,7 +1699,7 @@ let _allEvaluaciones = [];
 
 async function cargarEvaluaciones() {
     try {
-        const res = await fetch(`${API_BASE_URL}/evaluaciones`);
+        const res = await fetch(`${API_BASE_URL}/evaluaciones`, { headers: getAuthHeaders() });
         const data = await res.json();
         _allEvaluaciones = data.success ? (data.data || []) : [];
         renderEvaluaciones(_allEvaluaciones);
@@ -1838,7 +1857,7 @@ async function renderCalendarioDisponibilidad() {
     // Obtener reservas existentes
     let reservas = [];
     try {
-        const res = await fetch(`${API_BASE_URL}/reservas`);
+        const res = await fetch(`${API_BASE_URL}/reservas`, { headers: getAuthHeaders() });
         const data = await res.json();
         if (data.success) reservas = (data.data || []).filter(r => r.idEspacio === parseInt(idEspacio) && r.estado !== 'CANCELADA');
     } catch(e) {}
@@ -1927,7 +1946,7 @@ async function renderCalendarioDisponibilidad() {
 
 async function validarSinReservaExistente(idEspacio, fechaInicio, fechaFin) {
     try {
-        const res = await fetch(`${API_BASE_URL}/reservas`);
+        const res = await fetch(`${API_BASE_URL}/reservas`, { headers: getAuthHeaders() });
         const data = await res.json();
         if (!data.success || !data.data) return true;
 
@@ -1969,7 +1988,7 @@ let _allNotificaciones = [];
 
 async function cargarNotificaciones() {
     try {
-        const res = await fetch(`${API_BASE_URL}/notificaciones`);
+        const res = await fetch(`${API_BASE_URL}/notificaciones`, { headers: getAuthHeaders() });
         const data = await res.json();
         _allNotificaciones = data.success ? (data.data || []) : [];
         renderNotificaciones(_allNotificaciones);

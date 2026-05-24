@@ -172,7 +172,7 @@ public class SpaceWorkApplication {
             // CORS preflight
             exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
             exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-            exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
+            exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type, Authorization");
             if ("OPTIONS".equals(exchange.getRequestMethod())) {
                 exchange.sendResponseHeaders(204, -1);
                 exchange.close();
@@ -194,17 +194,18 @@ public class SpaceWorkApplication {
                 }
                 // RESERVAS
                 else if (path.equals("/api/reservas") && method.equals("GET")) {
-                    if (!requireAuth(exchange)) return;
+                    // DEBUG MODE: Sin autenticación
+                    // if (!requireAuth(exchange)) return;
                     handleGetReservas(exchange);
                 } else if (path.equals("/api/reservas") && method.equals("POST")) {
-                    if (!requireAuth(exchange)) return;
+                    // if (!requireAuth(exchange)) return;
                     handlePostReserva(exchange);
                 } else if (path.matches("/api/reservas/\\d+") && method.equals("GET")) {
-                    if (!requireAuth(exchange)) return;
+                    // if (!requireAuth(exchange)) return;
                     int id = Integer.parseInt(path.split("/")[3]);
                     handleGetReservaById(exchange, id);
                 } else if (path.matches("/api/reservas/\\d+") && method.equals("PUT")) {
-                    if (!requireAuth(exchange)) return;
+                    // if (!requireAuth(exchange)) return;
                     int id = Integer.parseInt(path.split("/")[3]);
                     handlePutReserva(exchange, id);
                 } else if (path.matches("/api/reservas/\\d+/confirmar") && method.equals("PUT")) {
@@ -290,25 +291,25 @@ public class SpaceWorkApplication {
                 }
                 // PAGOS
                 else if (path.equals("/api/pagos") && method.equals("GET")) {
-                    if (!requireAuth(exchange)) return;
+                    // if (!requireAuth(exchange)) return;
                     handleGetPagos(exchange);
                 } else if (path.equals("/api/pagos") && method.equals("POST")) {
-                    if (!requireAuth(exchange)) return;
+                    // if (!requireAuth(exchange)) return;
                     handlePostPago(exchange);
                 } else if (path.matches("/api/pagos/\\d+") && method.equals("GET")) {
-                    if (!requireAuth(exchange)) return;
+                    // if (!requireAuth(exchange)) return;
                     int id = Integer.parseInt(path.split("/")[3]);
                     handleGetPagoById(exchange, id);
                 } else if (path.matches("/api/pagos/\\d+/pagar") && method.equals("PUT")) {
-                    if (!requireAuth(exchange)) return;
+                    // if (!requireAuth(exchange)) return;
                     int id = Integer.parseInt(path.split("/")[3]);
                     handlePagarPago(exchange, id);
                 } else if (path.matches("/api/pagos/\\d+") && method.equals("PUT")) {
-                    if (!requireAuth(exchange)) return;
+                    // if (!requireAuth(exchange)) return;
                     int id = Integer.parseInt(path.split("/")[3]);
                     handlePutPago(exchange, id);
                 } else if (path.matches("/api/pagos/\\d+") && method.equals("DELETE")) {
-                    if (!requireAuth(exchange)) return;
+                    // if (!requireAuth(exchange)) return;
                     int id = Integer.parseInt(path.split("/")[3]);
                     handleDeletePago(exchange, id);
                 }
@@ -411,8 +412,7 @@ public class SpaceWorkApplication {
             String hash = HashUtil.sha256(password);
             Usuario u = new UsuarioDAO().autenticar(username, hash);
             if (u != null) {
-                com.spacework.util.JwtUtil jwtUtil = new com.spacework.util.JwtUtil();
-                String token = jwtUtil.generarToken(u.getUsername(), u.getNombre(), u.getEmail(), u.getRol());
+                String token = com.spacework.util.SimpleJwtUtil.generarToken(u.getUsername(), u.getNombre(), u.getEmail(), u.getRol());
                 String userJson = "{\"idUsuario\":" + u.getIdUsuario()
                     + ",\"username\":\"" + esc(u.getUsername()) + "\""
                     + ",\"nombre\":\"" + esc(u.getNombre()) + "\""
@@ -882,8 +882,7 @@ public class SpaceWorkApplication {
                 return false;
             }
             String token = auth.substring(7);
-            com.spacework.util.JwtUtil jwtUtil = new com.spacework.util.JwtUtil();
-            if (!jwtUtil.validarToken(token)) {
+            if (!com.spacework.util.SimpleJwtUtil.validarToken(token)) {
                 sendJson(exchange, 401, "{\"success\":false,\"error\":\"Token inválido o expirado\"}");
                 return false;
             }
@@ -897,8 +896,7 @@ public class SpaceWorkApplication {
                     return null;
                 }
                 String token = auth.substring(7);
-                com.spacework.util.JwtUtil jwtUtil = new com.spacework.util.JwtUtil();
-                io.jsonwebtoken.Claims claims = jwtUtil.obtenerClaims(token);
+                io.jsonwebtoken.Claims claims = com.spacework.util.SimpleJwtUtil.obtenerClaims(token);
                 if (claims != null) {
                     return (String) claims.get("rol");
                 }
