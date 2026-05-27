@@ -1,29 +1,42 @@
 package com.spacework;
 
-import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.spacework.controller.api.EvaluacionFormularioHandler;
-import com.spacework.dao.*;
-import com.spacework.model.*;
-import com.spacework.util.HashUtil;
-import com.spacework.util.EmailUtil;
-import com.spacework.util.Conexion;
-import java.sql.ResultSet;
-
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.sql.Timestamp;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.List;
+
+import com.spacework.controller.api.EvaluacionFormularioHandler;
+import com.spacework.dao.ClienteDAO;
+import com.spacework.dao.DescuentoDAO;
+import com.spacework.dao.EspacioDAO;
+import com.spacework.dao.EvaluacionDAO;
+import com.spacework.dao.HorarioBloqueadoDAO;
+import com.spacework.dao.PagoDAO;
+import com.spacework.dao.ReservaDAO;
+import com.spacework.dao.TokenEvaluacionDAO;
+import com.spacework.dao.UsuarioDAO;
+import com.spacework.model.Cliente;
+import com.spacework.model.Descuento;
+import com.spacework.model.Espacio;
+import com.spacework.model.Evaluacion;
+import com.spacework.model.HorarioBloqueado;
+import com.spacework.model.Pago;
+import com.spacework.model.Reserva;
+import com.spacework.model.TokenEvaluacion;
+import com.spacework.model.Usuario;
+import com.spacework.util.Conexion;
+import com.spacework.util.HashUtil;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 
 /**
  * Servidor HTTP REST API - SpaceWork
@@ -34,11 +47,57 @@ import java.text.SimpleDateFormat;
  */
 public class SpaceWorkApplication {
 
+
+    private static void initDatabase() {
+        try {
+            java.sql.Connection conn = com.spacework.util.Conexion.getConexion();
+            if (conn == null) return;
+            // Agregar columna si no existe
+            try {
+                conn.createStatement().execute("ALTER TABLE ESPACIOS ADD (imagen_url CLOB)");
+                System.out.println("[DB] Columna imagen_url CLOB agregada a ESPACIOS");
+            } catch (java.sql.SQLException e2) {
+                // Columna ya existe - verificar si es VARCHAR2 y convertir a CLOB
+                String msg = String.valueOf(e2.getMessage());
+                if (msg.contains("1430") || msg.contains("ya existe") || msg.contains("already")) {
+                    System.out.println("[DB] Columna imagen_url ya existe - verificando tipo...");
+                    try {
+                        // Verificar tipo actual y modificar a CLOB si es VARCHAR2
+                        java.sql.ResultSet rs = conn.createStatement().executeQuery(
+                            "SELECT data_type FROM user_tab_columns WHERE table_name='ESPACIOS' AND column_name='IMAGEN_URL'");
+                        if (rs.next()) {
+                            String dtype = rs.getString(1);
+                            System.out.println("[DB] Tipo actual: " + dtype);
+                            if (!"CLOB".equals(dtype)) {
+                                // Cambiar a CLOB via columna temporal
+                                conn.createStatement().execute("ALTER TABLE ESPACIOS ADD (imagen_url_tmp CLOB)");
+                                conn.createStatement().execute("UPDATE ESPACIOS SET imagen_url_tmp = imagen_url");
+                                conn.commit();
+                                conn.createStatement().execute("ALTER TABLE ESPACIOS DROP COLUMN imagen_url");
+                                conn.createStatement().execute("ALTER TABLE ESPACIOS RENAME COLUMN imagen_url_tmp TO imagen_url");
+                                conn.commit();
+                                System.out.println("[DB] Columna imagen_url convertida a CLOB exitosamente");
+                            } else {
+                                System.out.println("[DB] Columna imagen_url ya es CLOB - OK");
+                            }
+                        }
+                        rs.close();
+                    } catch (Exception ex2) {
+                        System.out.println("[DB] No se pudo convertir columna: " + ex2.getMessage());
+                    }
+                }
+            }
+            com.spacework.util.Conexion.cerrar(conn);
+        } catch (Exception ex) {
+            System.out.println("[DB] No se pudo verificar columna imagen_url: " + ex.getMessage());
+        }
+    }
     private static final int PORT = 8080;
     private static final String STATIC_DIR = "target/classes/static";
 
     public static void main(String[] args) throws IOException {
         printBanner();
+        initDatabase();
         
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", PORT), 0);
@@ -1972,3 +2031,5 @@ public class SpaceWorkApplication {
         }
     }
 }
+
+

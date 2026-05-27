@@ -28,6 +28,21 @@ function showConfirm({ message, icon = '⚠️', title = 'Confirmar acción', bt
 const API_BASE_URL = '/api';
 let currentUser = null;
 
+function getActiveUser() {
+    if (window.currentUser) return window.currentUser;
+    if (currentUser) return currentUser;
+    const savedUser = localStorage.getItem('user');
+    if (!savedUser) return null;
+    try {
+        const parsed = JSON.parse(savedUser);
+        currentUser = parsed;
+        window.currentUser = parsed;
+        return parsed;
+    } catch (e) {
+        return null;
+    }
+}
+
 // Función para obtener headers autenticados
 function getAuthHeaders() {
     const token = localStorage.getItem('token');
@@ -64,7 +79,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedUser) {
         try {
             currentUser = JSON.parse(savedUser);
+            window.currentUser = currentUser;
             showPage('dashboard');
+            // Controlar visibilidad de módulos según rol
+            controlVisibilidadModulosPorRol();
+            // Mostrar nombre del usuario
+            if (currentUser && currentUser.nombre) {
+                document.getElementById('user-display').textContent = currentUser.nombre;
+            }
             showSection('dashboard');
         } catch (e) {
             localStorage.clear();
@@ -117,6 +139,40 @@ function logout() {
     currentUser = null;
     showPage('login');
     document.getElementById('login-form').reset();
+}
+
+// ============================================================
+// CONTROL DE VISIBILIDAD POR ROL
+// ============================================================
+function controlVisibilidadModulosPorRol() {
+    if (!currentUser || !currentUser.rol) return;
+    
+    const esCliente = currentUser.rol.toUpperCase() === 'CLIENTE';
+    const esAdmin = currentUser.rol.toUpperCase().includes('ADMIN');
+    
+    if (esCliente) {
+        // Cliente: Solo ve Reservas y Espacios (para ver disponibilidad)
+        // Ocultar módulos de admin
+        document.getElementById('nav-dashboard').classList.add('d-none');
+        document.getElementById('nav-espacios').classList.remove('d-none');
+        document.getElementById('nav-clientes').classList.add('d-none');
+        document.getElementById('nav-pagos').classList.add('d-none');
+        document.getElementById('nav-descuentos').classList.add('d-none');
+        document.getElementById('nav-horarios').classList.add('d-none');
+        document.getElementById('nav-evaluaciones').classList.add('d-none');
+        document.getElementById('nav-notificaciones').classList.add('d-none');
+        document.getElementById('nav-reportes').classList.add('d-none');
+        
+        // Ocultar secciones que no son para cliente
+        document.getElementById('dashboard').classList.add('d-none');
+        document.getElementById('clientes').classList.add('d-none');
+        document.getElementById('pagos').classList.add('d-none');
+        document.getElementById('descuentos').classList.add('d-none');
+        document.getElementById('horarios').classList.add('d-none');
+        document.getElementById('evaluaciones').classList.add('d-none');
+        document.getElementById('notificaciones').classList.add('d-none');
+        document.getElementById('reportes').classList.add('d-none');
+    }
 }
 
 // ============================================================
@@ -344,13 +400,24 @@ async function loadReservas() {
             }
         }
         
-        const res = await fetch(`${API_BASE_URL}/reservas`, { headers: getAuthHeaders() });
+        // Si es cliente, filtrar por su ID; si es admin, mostrar todas
+        const activeUser = getActiveUser();
+        const esCliente = activeUser && activeUser.rol && activeUser.rol.toUpperCase() === 'CLIENTE';
+        let url = `${API_BASE_URL}/reservas`;
+        
+        // Si es cliente, agregar parámetro idCliente (soporta idCliente o idUsuario)
+        const idClienteActual = activeUser ? (activeUser.idCliente || activeUser.idUsuario || activeUser.id) : null;
+        if (esCliente && idClienteActual) {
+            url = `${API_BASE_URL}/reservas?idCliente=${idClienteActual}`;
+        }
+        
+        const res = await fetch(url, { headers: getAuthHeaders() });
         const data = await res.json();
         if (data.success && data.data) {
-            _allReservas = data.data;
+            window._allReservas = data.data;
             // Ordenar por idReserva (descendente para que los nuevos aparezan primero)
-            _allReservas.sort((a, b) => b.idReserva - a.idReserva);
-            renderReservas(_allReservas);
+            window._allReservas.sort((a, b) => b.idReserva - a.idReserva);
+            renderReservas(window._allReservas);
         } else {
             container.innerHTML = '<div class="col-12"><p class="text-danger">Error al cargar reservas</p></div>';
         }
@@ -636,39 +703,53 @@ function renderEspacios(espacios) {
     container.innerHTML = '';
 
     if (!espacios || espacios.length === 0) {
-        container.innerHTML = '<div class="col-12"><div class="alert alert-info">No hay espacios registrados</div></div>';
+        container.innerHTML = '<p class="text-muted" style="grid-column:1/-1;text-align:center;padding:40px">No hay espacios registrados</p>';
         return;
     }
 
     espacios.forEach(e => {
-        const col = document.createElement('div');
-        col.className = 'col-md-6 col-lg-4';
-        col.innerHTML = `
-            <div class="card h-100 shadow-sm">
+        const card = document.createElement('div');
+        card.className = 'espacio-card-item';
+
+        // Valida que la imagen sea un data URL base64 válido antes de renderizarla
+        const esImagenValida = e.urlImagen && e.urlImagen.startsWith('data:image') && e.urlImagen.length > 100;
+        const imgHtml = esImagenValida
+            ? `<img src="${e.urlImagen}" alt="${e.nombre}" class="espacio-card-img" onerror="this.parentElement.innerHTML='<div class=\\'espacio-card-no-img\\'><i class=\\'fas fa-image\\'></i><span>Sin imagen</span></div>'">`
+            : `<div class="espacio-card-no-img"><i class="fas fa-door-open"></i><span>Sin imagen</span></div>`;
+
+        card.innerHTML = `
+            <div class="card h-100 shadow-sm espacio-card">
+                <div class="espacio-card-img-wrap">${imgHtml}</div>
                 <div class="card-body">
                     <h5 class="card-title">${e.nombre}</h5>
-                    <p class="card-text mb-1"><strong>Tipo:</strong> ${e.tipo}</p>
-                    <p class="card-text mb-1"><strong>Capacidad:</strong> ${e.capacidad} personas</p>
-                    <p class="card-text mb-1"><strong>Ubicación:</strong> ${e.ubicacion}</p>
-                    <p class="card-text mb-2"><strong>Precio:</strong> S/. ${(e.precioPorHora || 0).toFixed(2)}/hora</p>
+                    <p class="card-text mb-1"><span class="badge bg-secondary">${e.tipo}</span></p>
+                    <p class="card-text mb-1"><i class="fas fa-users text-muted me-1"></i><strong>${e.capacidad}</strong> personas</p>
+                    <p class="card-text mb-1"><i class="fas fa-map-marker-alt text-muted me-1"></i>${e.ubicacion}</p>
+                    <p class="card-text mb-2"><i class="fas fa-dollar-sign text-muted me-1"></i><strong>S/. ${(e.precioPorHora || 0).toFixed(2)}</strong>/hora</p>
                     <span class="badge bg-${e.estado === 'ACTIVO' ? 'success' : 'danger'}">${e.estado}</span>
                 </div>
-                <div class="card-footer bg-white border-top">
-                    <button class="btn btn-sm btn-primary" onclick="editarEspacio(${e.idEspacio})">✏️ Editar</button>
-                    <button class="btn btn-sm btn-danger" onclick="eliminarEspacio(${e.idEspacio})">🗑️ Eliminar</button>
+                <div class="card-footer bg-white border-top d-flex gap-2">
+                    <button class="btn btn-sm btn-primary flex-fill" onclick="editarEspacio(${e.idEspacio})"><i class="fas fa-edit"></i> Editar</button>
+                    <button class="btn btn-sm btn-danger flex-fill" onclick="eliminarEspacio(${e.idEspacio})"><i class="fas fa-trash"></i> Eliminar</button>
                 </div>
             </div>
         `;
-        container.appendChild(col);
+        container.appendChild(card);
     });
 }
 
 function abrirFormularioEspacio() {
     document.getElementById('espacioId').value = '';
     document.getElementById('espacioForm').reset();
-    document.getElementById('espacioModalTitle').textContent = 'Nuevo Espacio';
-    const modal = getModal('espacioModal');
-    modal.show();
+    document.getElementById('espacioImagenFile').dataset.base64 = '';
+    document.getElementById('espacioImgPreview').src = '';
+    document.getElementById('espacioImgPreview').style.display = 'none';
+    const ph = document.getElementById('espacioImgPlaceholder');
+    if (ph) ph.style.display = 'flex';
+    const btnQ = document.getElementById('btnQuitarImagen');
+    if (btnQ) btnQ.classList.add('d-none');
+    document.getElementById('espacioModalTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>Nuevo Espacio';
+    getModal('espacioModal').show();
 }
 
 async function editarEspacio(id) {
@@ -686,7 +767,25 @@ async function editarEspacio(id) {
         document.getElementById('espacioCapacidad').value = e.capacidad || '';
         document.getElementById('espacioUbicacion').value = e.ubicacion || '';
         document.getElementById('espacioPrecio').value = e.precioPorHora || '';
-        document.getElementById('espacioModalTitle').textContent = 'Editar Espacio';
+        // Cargar imagen actual
+        const previewImg = document.getElementById('espacioImgPreview');
+        const placeholder = document.getElementById('espacioImgPlaceholder');
+        const btnQuitar = document.getElementById('btnQuitarImagen');
+        const esValida = e.urlImagen && e.urlImagen.startsWith('data:image') && e.urlImagen.length > 100;
+        if (esValida) {
+            previewImg.src = e.urlImagen;
+            previewImg.style.display = 'block';
+            if (placeholder) placeholder.style.display = 'none';
+            if (btnQuitar) btnQuitar.classList.remove('d-none');
+        } else {
+            previewImg.src = '';
+            previewImg.style.display = 'none';
+            if (placeholder) placeholder.style.display = 'flex';
+            if (btnQuitar) btnQuitar.classList.add('d-none');
+        }
+        document.getElementById('espacioImagenFile').value = '';
+        document.getElementById('espacioImagenFile').dataset.base64 = esValida ? e.urlImagen : '';
+        document.getElementById('espacioModalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Editar Espacio';
         getModal('espacioModal').show();
     } catch (err) {
         showAlert('error', 'Error de conexión');
@@ -717,6 +816,41 @@ async function eliminarEspacio(id) {
     });
 }
 
+function previewEspacioImagen(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+        showAlert('error', 'La imagen no puede superar 2MB');
+        input.value = '';
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        input.dataset.base64 = ev.target.result;
+        const previewImg = document.getElementById('espacioImgPreview');
+        const placeholder = document.getElementById('espacioImgPlaceholder');
+        const btnQuitar = document.getElementById('btnQuitarImagen');
+        previewImg.src = ev.target.result;
+        previewImg.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+        if (btnQuitar) btnQuitar.classList.remove('d-none');
+    };
+    reader.readAsDataURL(file);
+}
+
+function quitarImagenEspacio() {
+    const input = document.getElementById('espacioImagenFile');
+    const previewImg = document.getElementById('espacioImgPreview');
+    const placeholder = document.getElementById('espacioImgPlaceholder');
+    const btnQuitar = document.getElementById('btnQuitarImagen');
+    input.value = '';
+    input.dataset.base64 = '';
+    previewImg.src = '';
+    previewImg.style.display = 'none';
+    if (placeholder) placeholder.style.display = 'flex';
+    if (btnQuitar) btnQuitar.classList.add('d-none');
+}
+
 async function guardarEspacio() {
     const id = document.getElementById('espacioId').value;
     const nombre = document.getElementById('espacioNombre').value;
@@ -724,6 +858,8 @@ async function guardarEspacio() {
     const capacidad = parseInt(document.getElementById('espacioCapacidad').value);
     const ubicacion = document.getElementById('espacioUbicacion').value;
     const precio = parseFloat(document.getElementById('espacioPrecio').value);
+    const fileInput = document.getElementById('espacioImagenFile');
+    const urlImagen = fileInput.dataset.base64 || null;
 
     try {
         const method = id ? 'PUT' : 'POST';
@@ -732,7 +868,7 @@ async function guardarEspacio() {
         const res = await fetch(url, {
             method,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre, tipo, capacidad, ubicacion, precioPorHora: precio })
+            body: JSON.stringify({ nombre, tipo, capacidad, ubicacion, precioPorHora: precio, urlImagen })
         });
 
         const data = await res.json();
@@ -1100,14 +1236,32 @@ function showAlert(type, message) {
 // ============================================================
 // FILTROS
 // ============================================================
-let _allReservas = [];
+window._allReservas = [];
 let _allEspacios = [];
 let _allClientes = [];
 let _allHorarios = [];
 
 function filtrarReservas() {
     const filtro = document.getElementById('filtroReservas').value.toLowerCase();
-    const filtrados = _allReservas.filter(r => {
+    const activeUser = getActiveUser();
+
+    if (activeUser && activeUser.rol === 'CLIENTE' && typeof renderReservasCliente === 'function') {
+        const clienteId = activeUser.idCliente || activeUser.idUsuario || activeUser.id;
+        let base = window._allReservas;
+        if (clienteId) {
+            base = window._allReservas.filter(r => r.idCliente == clienteId);
+        }
+        const filtradosCliente = base.filter(r => {
+            const espacio = r.nombreEspacio || '';
+            const estado = r.estado || '';
+            const texto = (espacio + ' ' + estado + ' ' + (r.idReserva || '')).toLowerCase();
+            return texto.includes(filtro);
+        });
+        renderReservasCliente(filtradosCliente);
+        return;
+    }
+
+    const filtrados = window._allReservas.filter(r => {
         const cliente = r.nombreCliente || (r.cliente ? (r.cliente.nombreCompleto || r.cliente.nombre || '') : '');
         const espacio = r.nombreEspacio || (r.espacio ? r.espacio.nombre : '');
         const texto = (cliente + ' ' + espacio).toLowerCase();
@@ -1204,17 +1358,17 @@ async function validarSinReservaExistente(idEspacio, fechaInicio, fechaFin) {
 // ============================================================
 // CRUD DE PAGOS
 // ============================================================
-let _allPagos = [];
+window._allPagos = [];
 
 async function cargarPagos() {
     try {
         const res = await fetch(`${API_BASE_URL}/pagos`, { headers: getAuthHeaders() });
         const data = await res.json();
-        _allPagos = data.success ? (data.data || []) : [];
-        renderPagos(_allPagos);
+        window._allPagos = data.success ? (data.data || []) : [];
+        renderPagos(window._allPagos);
     } catch (e) {
         console.error('Error cargando pagos:', e);
-        _allPagos = [];
+        window._allPagos = [];
     }
 }
 
@@ -1265,6 +1419,11 @@ function seleccionarMetodoPago(idPago, monto, nombreCliente, emailCliente) {
 
         let montoFinal = typeof monto === 'number' ? monto : parseFloat(monto);
         let idDescuentoAplicado = null;
+        const activeUser = getActiveUser();
+        const esCliente = activeUser && activeUser.rol === 'CLIENTE';
+        const opcionesMetodo = esCliente
+            ? '<option value="TARJETA">💳 Tarjeta de Crédito/Débito</option><option value="YAPE">📱 Yape / Plin</option>'
+            : '<option value="EFECTIVO">💵 Efectivo</option><option value="TARJETA">💳 Tarjeta de Crédito/Débito</option><option value="TRANSFERENCIA">🏦 Transferencia Bancaria</option><option value="YAPE">📱 Yape / Plin</option>';
 
         const modalEl = document.createElement('div');
         modalEl.id = 'pagoMetodoModal';
@@ -1293,10 +1452,7 @@ function seleccionarMetodoPago(idPago, monto, nombreCliente, emailCliente) {
                         <div class="mb-3">
                             <label class="form-label fw-bold">Método de Pago</label>
                             <select class="form-select" id="pm-metodo">
-                                <option value="EFECTIVO">💵 Efectivo</option>
-                                <option value="TARJETA">💳 Tarjeta de Crédito/Débito</option>
-                                <option value="TRANSFERENCIA">🏦 Transferencia Bancaria</option>
-                                <option value="YAPE">📱 Yape / Plin</option>
+                                ${opcionesMetodo}
                             </select>
                         </div>
                     </div>
@@ -1308,8 +1464,10 @@ function seleccionarMetodoPago(idPago, monto, nombreCliente, emailCliente) {
             </div>`;
         document.body.appendChild(modalEl);
 
-        document.getElementById('pm-cliente').textContent = nombreCliente;
-        document.getElementById('pm-email').textContent   = emailCliente || 'Sin email';
+        const nombreModal = nombreCliente || (activeUser && activeUser.nombre) || 'Cliente';
+        const emailModal = emailCliente || (activeUser && activeUser.email) || 'Sin email';
+        document.getElementById('pm-cliente').textContent = nombreModal;
+        document.getElementById('pm-email').textContent   = emailModal;
         document.getElementById('pm-monto').textContent   = montoFinal.toFixed(2);
 
         const modal = new bootstrap.Modal(modalEl);
@@ -1359,7 +1517,12 @@ function seleccionarMetodoPago(idPago, monto, nombreCliente, emailCliente) {
                 if (data.success) {
                     showAlert('success', `✅ Pago procesado por ${metodo}. Se envió confirmación a ${emailCliente || 'cliente'}.`);
                     await cargarPagos();
-                    if (_allReservas.length > 0) await loadReservas();
+                    if (window._allReservas.length > 0) {
+                        await loadReservas();
+                        if (currentUser && currentUser.rol === 'CLIENTE' && typeof renderClienteHistorial === 'function') {
+                            renderClienteHistorial();
+                        }
+                    }
                 } else {
                     showAlert('danger', '❌ Error: ' + (data.error || 'No se pudo procesar el pago'));
                 }
@@ -1374,7 +1537,7 @@ function seleccionarMetodoPago(idPago, monto, nombreCliente, emailCliente) {
 function filtrarPagos() {
     const filtro = document.getElementById('filtroPagos').value.toLowerCase();
     // Filtrar solo pagos PENDIENTES que coincidan con el término de búsqueda
-    const filtrados = _allPagos.filter(p => {
+    const filtrados = window._allPagos.filter(p => {
         if (p.estadoPago === 'COMPLETADO') return false;
         const texto = ((p.idReserva || '') + ' ' + (p.monto || '') + ' ' + (p.nombreCliente || '') + ' ' + (p.estadoPago || '')).toLowerCase();
         return texto.includes(filtro);

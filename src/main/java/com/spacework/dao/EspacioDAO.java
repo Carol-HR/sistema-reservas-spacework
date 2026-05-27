@@ -10,7 +10,7 @@ import java.util.List;
 public class EspacioDAO {
 
     public List<Espacio> listar() throws SQLException {
-        String sql = "SELECT * FROM ESPACIOS WHERE estado = 'ACTIVO' ORDER BY nombre";
+        String sql = "SELECT id_espacio, nombre, tipo, capacidad, ubicacion, precio_por_hora, estado, imagen_url FROM ESPACIOS WHERE estado = 'ACTIVO' ORDER BY nombre";
         List<Espacio> lista = new ArrayList<>();
         Connection conn = null;
         try {
@@ -27,7 +27,7 @@ public class EspacioDAO {
     }
 
     public Espacio buscarPorId(int idEspacio) throws SQLException {
-        String sql = "SELECT * FROM ESPACIOS WHERE id_espacio = ?";
+        String sql = "SELECT id_espacio, nombre, tipo, capacidad, ubicacion, precio_por_hora, estado, imagen_url FROM ESPACIOS WHERE id_espacio = ?";
         Connection conn = null;
         try {
             conn = Conexion.getConexion();
@@ -42,8 +42,7 @@ public class EspacioDAO {
     }
 
     public void insertar(Espacio e) throws SQLException {
-        String sql = "INSERT INTO ESPACIOS (id_espacio, nombre, tipo, capacidad, ubicacion, precio_por_hora, estado, urlImagen) "
-               + "VALUES (SEQ_ESPACIOS.NEXTVAL, ?, ?, ?, ?, ?, 'ACTIVO', ?)";
+        String sql = "INSERT INTO ESPACIOS (id_espacio, nombre, tipo, capacidad, ubicacion, precio_por_hora, estado, imagen_url) VALUES (SEQ_ESPACIOS.NEXTVAL, ?, ?, ?, ?, ?, 'ACTIVO', ?)";
         Connection conn = null;
         try {
             conn = Conexion.getConexion();
@@ -62,8 +61,7 @@ public class EspacioDAO {
     }
 
     public void actualizar(Espacio e) throws SQLException {
-        String sql = "UPDATE ESPACIOS SET nombre=?, tipo=?, capacidad=?, ubicacion=?, precio_por_hora=?, urlImagen=? "
-                   + "WHERE id_espacio=?";
+        String sql = "UPDATE ESPACIOS SET nombre=?, tipo=?, capacidad=?, ubicacion=?, precio_por_hora=?, imagen_url=? WHERE id_espacio=?";
         Connection conn = null;
         try {
             conn = Conexion.getConexion();
@@ -105,7 +103,29 @@ public class EspacioDAO {
         e.setUbicacion(rs.getString("ubicacion"));
         e.setPrecioPorHora(rs.getDouble("precio_por_hora"));
         e.setEstado(rs.getString("estado"));
-        e.setUrlImagen(rs.getString("urlImagen"));
+        
+        // Lee imagen_url (columna CLOB en Oracle)
+        String imagen = null;
+        try {
+            Clob clob = rs.getClob("imagen_url");
+            System.out.println("[DEBUG imagen] ID=" + rs.getInt("id_espacio") + " clob=" + (clob == null ? "NULL" : "len=" + clob.length()));
+            if (clob != null && clob.length() > 0) {
+                imagen = clob.getSubString(1, (int) Math.min(clob.length(), (long) Integer.MAX_VALUE));
+                System.out.println("[DEBUG imagen] ID=" + rs.getInt("id_espacio") + " leidos=" + imagen.length() + " inicio=" + imagen.substring(0, Math.min(60, imagen.length())));
+            }
+        } catch (Exception ex1) {
+            System.err.println("[DEBUG imagen] CLOB fallo ID=" + e.getIdEspacio() + " error: " + ex1.getClass().getSimpleName() + ": " + ex1.getMessage());
+            try {
+                imagen = rs.getString("imagen_url");
+                System.out.println("[DEBUG imagen] getString ID=" + e.getIdEspacio() + " resultado=" + (imagen == null ? "NULL" : imagen.length() + " chars"));
+            } catch (Exception ex2) {
+                System.err.println("[DEBUG imagen] getString tambien fallo: " + ex2.getMessage());
+            }
+        }
+        
+        if (imagen != null && !imagen.trim().isEmpty()) {
+            e.setUrlImagen(imagen.trim());
+        }
         return e;
     }
 }

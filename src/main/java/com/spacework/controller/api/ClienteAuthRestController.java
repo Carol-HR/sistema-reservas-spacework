@@ -61,8 +61,8 @@ public class ClienteAuthRestController implements HttpHandler {
                 com.spacework.util.JwtUtil jwtUtil = new com.spacework.util.JwtUtil();
                 String token = jwtUtil.generarToken(c.getEmail(), c.getNombre(), c.getEmail(), "CLIENTE");
                 String json = String.format(
-                    "{\"success\": true, \"message\": \"Login exitoso\", \"token\": \"%s\", \"user\": {\"id\": %d, \"nombre\": \"%s\", \"email\": \"%s\", \"dni\": \"%s\", \"rol\": \"CLIENTE\"}}",
-                    token, c.getIdCliente(), c.getNombre(), c.getEmail(), c.getDni()
+                    "{\"success\": true, \"message\": \"Login exitoso\", \"token\": \"%s\", \"user\": {\"idUsuario\": %d, \"idCliente\": %d, \"nombre\": \"%s\", \"email\": \"%s\", \"dni\": \"%s\", \"rol\": \"CLIENTE\"}}",
+                    token, c.getIdCliente(), c.getIdCliente(), c.getNombre(), c.getEmail(), c.getDni()
                 );
                 sendResponse(exchange, 200, json);
             } else {

@@ -3,558 +3,1512 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpaceWork - Sistema de Reservas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>SpaceWork - Sistema Premium de Reservas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-light">
-    <div id="app" class="app-container">
-        <!-- Login Page -->
-        <div id="login-page" class="page">
-            <div class="login-wrapper">
-                <div class="card shadow-lg" style="width: 100%; max-width: 420px;">
-                    <div class="card-body p-5 text-center">
-                        <h1 class="mb-3" style="font-size: 3rem;">🏢</h1>
-                        <h2 class="h3 mb-2">SpaceWork Perú</h2>
-                        <p class="text-muted mb-4">Sistema de Gestión de Reservas</p>
-                        <form id="login-form">
-                            <div class="mb-3">
-                                <input type="text" id="username" class="form-control form-control-lg" placeholder="Usuario" required value="admin">
-                            </div>
-                            <div class="mb-3">
-                                <input type="password" id="password" class="form-control form-control-lg" placeholder="Contraseña" required value="admin123">
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">Ingresar</button>
-                        </form>
-                        <div id="login-error" class="alert alert-danger d-none" role="alert"></div>
-                    </div>
+<body>
+
+<!-- ============================================================
+     LOGIN PAGE (3 vistas: login / registro / recuperar)
+     ============================================================ -->
+<div id="login-page" class="login-container">
+    <div class="login-background">
+        <div class="login-blob login-blob-1"></div>
+        <div class="login-blob login-blob-2"></div>
+    </div>
+    <div class="login-content">
+
+        <!-- ========== VISTA: LOGIN ========== -->
+        <div id="view-login" class="login-card">
+            <div class="login-header">
+                <div class="login-logo">🏢</div>
+                <h1>SpaceWork Perú</h1>
+                <p>Sistema Premium de Gestión de Reservas</p>
+            </div>
+            <div id="login-error" class="alert-error d-none"></div>
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="username">Usuario o Email</label>
+                    <input type="text" id="username" placeholder="admin o tu@email.com" required value="admin">
+                    <i class="fas fa-user"></i>
                 </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" placeholder="••••••••" required value="admin123">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <button type="submit" class="btn-login-primary">
+                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                </button>
+            </form>
+            <div class="auth-links">
+                <a href="#" class="auth-link" onclick="switchAuthView('forgot'); return false;">
+                    <i class="fas fa-key"></i> ¿Olvidaste tu contraseña?
+                </a>
+                <a href="#" class="auth-link auth-link-register" onclick="switchAuthView('register'); return false;">
+                    <i class="fas fa-user-plus"></i> Crear cuenta nueva
+                </a>
+            </div>
+            <div class="login-footer">
+                <i class="fas fa-shield-alt"></i> Acceso seguro &middot; SpaceWork &copy; 2024
             </div>
         </div>
 
-        <!-- Dashboard Page -->
-        <div id="dashboard-page" class="page d-none">
-            <!-- Navbar -->
-            <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
-                <div class="container-fluid">
-                    <a class="navbar-brand fw-bold" href="#">🏢 SpaceWork Perú</a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav ms-auto">
-                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('dashboard')">📊 Dashboard</button></li>
-                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('reservas')">📅 Reservas</button></li>
-                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('espacios')">🏛️ Espacios</button></li>
-                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('clientes')">👥 Clientes</button></li>
-                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('pagos')">💳 Pagos</button></li>
-                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('descuentos')">🎁 Descuentos</button></li>
-                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('evaluaciones')">⭐ Evaluaciones</button></li>
-                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('notificaciones')">📬 Notificaciones</button></li>
-                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('horarios')">⏱️ Horarios</button></li>
-                            <li class="nav-item"><button class="nav-link btn" onclick="showSection('reportes')">📋 Reportes</button></li>
-                            <li class="nav-item"><button class="nav-link btn btn-danger text-white" onclick="logout()">🚪 Salir</button></li>
-                        </ul>
+        <!-- ========== VISTA: REGISTRO ========== -->
+        <div id="view-register" class="login-card d-none">
+            <div class="login-header">
+                <div class="login-logo" style="animation:none;font-size:40px">👤</div>
+                <h1>Crear Cuenta</h1>
+                <p>Regístrate para hacer tus reservas</p>
+            </div>
+            <div id="register-error" class="alert-error d-none"></div>
+            <div id="register-success" class="auth-success d-none"></div>
+            <form id="register-form" class="login-form" style="gap:12px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div class="form-group">
+                        <label for="reg-nombre">Nombre</label>
+                        <input type="text" id="reg-nombre" placeholder="Juan" required>
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-apellido">Apellido</label>
+                        <input type="text" id="reg-apellido" placeholder="Pérez" required>
+                        <i class="fas fa-user"></i>
                     </div>
                 </div>
-            </nav>
+                <div class="form-group">
+                    <label for="reg-dni">DNI</label>
+                    <input type="text" id="reg-dni" placeholder="12345678" maxlength="8" required>
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">Email</label>
+                    <input type="email" id="reg-email" placeholder="tu@email.com" required>
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="form-group">
+                    <label for="reg-telefono">Teléfono</label>
+                    <input type="tel" id="reg-telefono" placeholder="+51 987654321" required>
+                    <i class="fas fa-phone"></i>
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Contraseña</label>
+                    <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" required minlength="6">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="form-group">
+                    <label for="reg-password2">Confirmar Contraseña</label>
+                    <input type="password" id="reg-password2" placeholder="Repite tu contraseña" required minlength="6">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <button type="submit" class="btn-login-primary" style="background:linear-gradient(135deg,#16a34a,#0891b2)">
+                    <i class="fas fa-user-plus"></i> Crear Cuenta
+                </button>
+            </form>
+            <div class="auth-links" style="justify-content:center">
+                <a href="#" class="auth-link" onclick="switchAuthView('login'); return false;">
+                    <i class="fas fa-arrow-left"></i> Volver al inicio de sesión
+                </a>
+            </div>
+        </div>
 
-            <!-- Content -->
-            <div class="container-fluid pt-4 pb-4">
-                <!-- Dashboard Section -->
-                <div id="dashboard" class="section d-none">
-                    <h1 class="mb-4">📊 Dashboard</h1>
-                    <div class="row g-4 mb-4">
-                        <div class="col-md-6 col-lg-3">
-                            <div class="card border-0 shadow-sm bg-primary text-white h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-uppercase small">Total Reservas</h6>
-                                    <h2 id="kpi-reservas" class="mb-0">0</h2>
-                                    <small id="kpi-reservas-detail" class="text-white-50"></small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="card border-0 shadow-sm bg-success text-white h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-uppercase small">Confirmadas</h6>
-                                    <h2 id="kpi-confirmadas" class="mb-0">0</h2>
-                                    <small class="text-white-50">Esta semana</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="card border-0 shadow-sm bg-info text-white h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-uppercase small">Espacios Activos</h6>
-                                    <h2 id="kpi-espacios" class="mb-0">0</h2>
-                                    <small class="text-white-50">Disponibles</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="card border-0 shadow-sm bg-warning text-white h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-uppercase small">Ocupación</h6>
-                                    <h2 id="kpi-ocupacion" class="mb-0">0%</h2>
-                                    <small class="text-white-50">Promedio</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="card border-0 shadow-sm bg-danger text-white h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-uppercase small">Total Clientes</h6>
-                                    <h2 id="kpi-clientes" class="mb-0">0</h2>
-                                    <small class="text-white-50">Registrados</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="card border-0 shadow-sm bg-secondary text-white h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-uppercase small">Ingresos Totales</h6>
-                                    <h2 id="kpi-ingresos" class="mb-0">S/. 0.00</h2>
-                                    <small class="text-white-50">Completadas</small>
-                                </div>
-                            </div>
-                        </div>
+        <!-- ========== VISTA: RECUPERAR CONTRASEÑA ========== -->
+        <div id="view-forgot" class="login-card d-none">
+            <div class="login-header">
+                <div class="login-logo" style="animation:none;font-size:40px">🔑</div>
+                <h1>Recuperar Acceso</h1>
+                <p>Te enviaremos una nueva contraseña a tu correo</p>
+            </div>
+            <div id="forgot-error" class="alert-error d-none"></div>
+            <div id="forgot-success" class="auth-success d-none"></div>
+            <form id="forgot-form" class="login-form">
+                <div class="form-group">
+                    <label for="forgot-email">Tu Email registrado</label>
+                    <input type="email" id="forgot-email" placeholder="tu@email.com" required>
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <button type="submit" class="btn-login-primary" style="background:linear-gradient(135deg,#f59e0b,#dc2626)">
+                    <i class="fas fa-paper-plane"></i> Enviar Nueva Contraseña
+                </button>
+            </form>
+            <div class="auth-links" style="justify-content:center">
+                <a href="#" class="auth-link" onclick="switchAuthView('login'); return false;">
+                    <i class="fas fa-arrow-left"></i> Volver al inicio de sesión
+                </a>
+            </div>
+            <div class="login-footer" style="margin-top:16px">
+                <i class="fas fa-info-circle"></i> Se generará una contraseña temporal y se enviará al correo registrado
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ============================================================
+     MAIN APP
+     ============================================================ -->
+<div id="dashboard-page" class="main-app d-none">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-building"></i> SpaceWork
+            </div>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-label">Principal</div>
+                <button class="nav-item active" id="nav-dashboard" onclick="showSection('dashboard')">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </button>
+                <button class="nav-item" id="nav-reservas" onclick="showSection('reservas')">
+                    <i class="fas fa-calendar-check"></i> Reservas
+                </button>
+            </div>
+            <div class="nav-section">
+                <div class="nav-label">Gestión</div>
+                <button class="nav-item" id="nav-espacios" onclick="showSection('espacios')">
+                    <i class="fas fa-door-open"></i> Espacios
+                </button>
+                <button class="nav-item" id="nav-clientes" onclick="showSection('clientes')">
+                    <i class="fas fa-users"></i> Clientes
+                </button>
+                <button class="nav-item" id="nav-pagos" onclick="showSection('pagos')">
+                    <i class="fas fa-credit-card"></i> Pagos
+                </button>
+                <button class="nav-item" id="nav-descuentos" onclick="showSection('descuentos')">
+                    <i class="fas fa-tags"></i> Descuentos
+                </button>
+            </div>
+            <div class="nav-section">
+                <div class="nav-label">Operaciones</div>
+                <button class="nav-item" id="nav-horarios" onclick="showSection('horarios')">
+                    <i class="fas fa-clock"></i> Horarios
+                </button>
+                <button class="nav-item" id="nav-evaluaciones" onclick="showSection('evaluaciones')">
+                    <i class="fas fa-star"></i> Evaluaciones
+                </button>
+                <button class="nav-item" id="nav-notificaciones" onclick="showSection('notificaciones')">
+                    <i class="fas fa-bell"></i> Notificaciones
+                </button>
+                <button class="nav-item" id="nav-reportes" onclick="showSection('reportes')">
+                    <i class="fas fa-file-alt"></i> Reportes
+                </button>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </button>
+        </div>
+    </aside>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <button class="btn-menu-mobile" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title" id="page-title">Dashboard</h1>
+        </div>
+        <div class="topbar-right">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span class="user-name" id="user-display">Administrador</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- ================== DASHBOARD ================== -->
+        <div id="dashboard" class="section">
+            <div class="section-header">
+                <div>
+                    <h2><i class="fas fa-chart-line"></i> Dashboard</h2>
+                    <p>Resumen general del sistema de reservas</p>
+                </div>
+            </div>
+
+            <div class="kpis-grid">
+                <div class="kpi-card kpi-primary">
+                    <div class="kpi-icon" style="background:#dbeafe;color:#2563eb">
+                        <i class="fas fa-calendar-check"></i>
                     </div>
-
-                    <!-- Calendario Semanal -->
-                    <div class="row mt-5">
-                        <div class="col-12">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h3 class="mb-0">📅 Disponibilidad Semanal por Hora</h3>
-                                <div style="width: 250px;">
-                                    <label class="form-label fw-bold" style="font-size: 0.9rem;">Filtrar por Espacio:</label>
-                                    <select class="form-select form-select-sm" id="filtro-calendario-espacio" onchange="filtrarCalendarioPorEspacio()">
-                                        <option value="">-- Todos los espacios --</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="table-responsive" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-                                <table class="table table-sm table-bordered" style="margin-bottom: 0;">
-                                    <thead id="calendario-header" class="table-light" style="font-size: 0.85rem;"></thead>
-                                    <tbody id="calendario-body" style="font-size: 0.8rem;"></tbody>
-                                </table>
-                            </div>
-                            <div style="margin-top: 15px; font-size: 0.85rem;">
-                                <span style="display: inline-block; width: 20px; height: 20px; background: #28a745; margin-right: 10px; border-radius: 3px;"></span><strong>Disponible</strong> &nbsp;&nbsp;
-                                <span style="display: inline-block; width: 20px; height: 20px; background: #dc3545; margin-right: 10px; border-radius: 3px;"></span><strong>Ocupado</strong> &nbsp;&nbsp;
-                                <span style="display: inline-block; width: 20px; height: 20px; background: #ff9800; margin-right: 10px; border-radius: 3px;"></span><strong>Bloqueado</strong>
-                            </div>
-                        </div>
+                    <div class="kpi-content">
+                        <div class="kpi-label">Total Reservas</div>
+                        <div class="kpi-value" id="kpi-reservas">0</div>
+                        <div class="kpi-detail" id="kpi-reservas-detail">Cargando...</div>
                     </div>
                 </div>
-
-                <!-- Reservas Section -->
-                <div id="reservas" class="section d-none">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1>📅 Mis Reservas</h1>
-                        <button class="btn btn-primary" onclick="abrirFormularioReserva()">+ Nueva Reserva</button>
+                <div class="kpi-card kpi-success">
+                    <div class="kpi-icon" style="background:#dcfce7;color:#16a34a">
+                        <i class="fas fa-check-circle"></i>
                     </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="filtroReservas" placeholder="🔍 Buscar por cliente o espacio..." oninput="filtrarReservas()">
-                    </div>
-                    <div id="reservas-list" class="row g-3"></div>
-                </div>
-
-                <!-- Espacios Section -->
-                <div id="espacios" class="section d-none">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1>🏛️ Espacios Disponibles</h1>
-                        <button class="btn btn-primary" onclick="abrirFormularioEspacio()">+ Nuevo Espacio</button>
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="filtroEspacios" placeholder="🔍 Buscar por nombre o tipo..." oninput="filtrarEspacios()">
-                    </div>
-                    <div id="espacios-grid" class="row g-3"></div>
-                </div>
-
-                <!-- Clientes Section -->
-                <div id="clientes" class="section d-none">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1>👥 Clientes</h1>
-                        <button class="btn btn-primary" onclick="abrirFormularioCliente()">+ Nuevo Cliente</button>
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="filtroClientes" placeholder="🔍 Buscar por nombre, DNI o email..." oninput="filtrarClientes()">
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="table-primary">
-                                <tr>
-                                    <th>Nombre Completo</th>
-                                    <th>DNI</th>
-                                    <th>Email</th>
-                                    <th>Teléfono</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="clientes-tbody"></tbody>
-                        </table>
+                    <div class="kpi-content">
+                        <div class="kpi-label">Confirmadas</div>
+                        <div class="kpi-value" id="kpi-confirmadas">0</div>
+                        <div class="kpi-detail">Esta semana</div>
                     </div>
                 </div>
-
-                <!-- Pagos Section -->
-                <div id="pagos" class="section d-none">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h1 class="mb-0">💳 Gestión de Pagos</h1>
-                            <small class="text-muted">Los pagos se crean automáticamente con cada reserva confirmada</small>
-                        </div>
+                <div class="kpi-card kpi-info">
+                    <div class="kpi-icon" style="background:#cffafe;color:#0891b2">
+                        <i class="fas fa-door-open"></i>
                     </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="filtroPagos" placeholder="🔍 Buscar por reserva o monto..." oninput="filtrarPagos()">
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="table-warning">
-                                <tr>
-                                    <th>ID Pago</th>
-                                    <th>Reserva #</th>
-                                    <th>Cliente</th>
-                                    <th>Monto</th>
-                                    <th>Método</th>
-                                    <th>Estado</th>
-                                    <th>Fecha Registro</th>
-                                    <th>Fecha Pago</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="pagos-tbody"></tbody>
-                        </table>
+                    <div class="kpi-content">
+                        <div class="kpi-label">Espacios Activos</div>
+                        <div class="kpi-value" id="kpi-espacios">0</div>
+                        <div class="kpi-detail">Disponibles</div>
                     </div>
                 </div>
-
-                <!-- Descuentos Section -->
-                <div id="descuentos" class="section d-none">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1>🎁 Códigos de Descuento</h1>
-                        <button class="btn btn-primary" onclick="abrirFormularioDescuento()">+ Nuevo Descuento</button>
+                <div class="kpi-card kpi-warning">
+                    <div class="kpi-icon" style="background:#fef9c3;color:#ca8a04">
+                        <i class="fas fa-percentage"></i>
                     </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="filtroDescuentos" placeholder="🔍 Buscar por código o descripción..." oninput="filtrarDescuentos()">
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="table-success">
-                                <tr>
-                                    <th>Código</th>
-                                    <th>Descripción</th>
-                                    <th>Descuento %</th>
-                                    <th>Monto Mínimo</th>
-                                    <th>Vigencia</th>
-                                    <th>Usos</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="descuentos-tbody"></tbody>
-                        </table>
+                    <div class="kpi-content">
+                        <div class="kpi-label">Ocupación</div>
+                        <div class="kpi-value" id="kpi-ocupacion">0%</div>
+                        <div class="kpi-detail">Promedio</div>
                     </div>
                 </div>
-
-                <!-- Evaluaciones Section -->
-                <div id="evaluaciones" class="section d-none">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1>⭐ Sistema de Evaluaciones</h1>
+                <div class="kpi-card kpi-danger">
+                    <div class="kpi-icon" style="background:#fee2e2;color:#dc2626">
+                        <i class="fas fa-users"></i>
                     </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="filtroEvaluaciones" placeholder="🔍 Buscar por cliente o email..." oninput="filtrarEvaluaciones()">
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="table-info">
-                                <tr>
-                                    <th>Reserva #</th>
-                                    <th>Cliente</th>
-                                    <th>Email</th>
-                                    <th>Calificación</th>
-                                    <th>Comentario</th>
-                                    <th>Fecha</th>
-                                </tr>
-                            </thead>
-                            <tbody id="evaluaciones-tbody"></tbody>
-                        </table>
+                    <div class="kpi-content">
+                        <div class="kpi-label">Clientes</div>
+                        <div class="kpi-value" id="kpi-clientes">0</div>
+                        <div class="kpi-detail">Registrados</div>
                     </div>
                 </div>
-
-                <!-- Notificaciones Section -->
-                <div id="notificaciones" class="section d-none">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1>📬 Centro de Notificaciones</h1>
+                <div class="kpi-card" style="border-left-color:#7c3aed">
+                    <div class="kpi-icon" style="background:#ede9fe;color:#7c3aed">
+                        <i class="fas fa-dollar-sign"></i>
                     </div>
-                    <div class="mb-3">
-                        <select class="form-control" id="filtroNotificaciones" onchange="filtrarNotificaciones()">
-                            <option value="">Todas las notificaciones</option>
-                            <option value="RESERVA">📅 Reservas</option>
-                            <option value="PAGO">💳 Pagos</option>
-                            <option value="EVALUACION">⭐ Evaluaciones Pendientes</option>
-                            <option value="RECORDATORIO">⏰ Recordatorios</option>
-                            <option value="PROMOCION">🎁 Promociones</option>
-                            <option value="SISTEMA">⚙️ Sistema</option>
+                    <div class="kpi-content">
+                        <div class="kpi-label">Ingresos Totales</div>
+                        <div class="kpi-value" id="kpi-ingresos">S/. 0</div>
+                        <div class="kpi-detail">Completadas</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <h3><i class="fas fa-calendar-week"></i> Disponibilidad Semanal por Hora</h3>
+                    <div>
+                        <label class="form-label" style="font-size:0.8rem;font-weight:700;margin-bottom:4px;display:block">Filtrar Espacio:</label>
+                        <select class="form-select form-select-sm" id="filtro-calendario-espacio" onchange="filtrarCalendarioPorEspacio()">
+                            <option value="">-- Todos los espacios --</option>
                         </select>
                     </div>
-                    <div id="notificaciones-list" class="row g-3"></div>
+                </div>
+                <div class="calendar-table">
+                    <table>
+                        <thead id="calendario-header"></thead>
+                        <tbody id="calendario-body"></tbody>
+                    </table>
+                </div>
+                <div class="calendar-legend">
+                    <div class="legend-item">
+                        <div class="legend-box" style="background:#dcfce7;border:1px solid #bbf7d0"></div>
+                        <span>Disponible</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background:#fee2e2;border:1px solid #fecaca"></div>
+                        <span>Ocupado</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background:#fef9c3;border:1px solid #fde68a"></div>
+                        <span>Bloqueado</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================== RESERVAS ================== -->
+        <div id="reservas" class="section d-none">
+
+            <!-- ====== MODO ADMIN ====== -->
+            <div class="reservas-admin-only">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fas fa-calendar-check"></i> Reservas</h2>
+                        <p>Gestión completa de todas las reservas</p>
+                    </div>
+                    <button class="btn-primary-action" onclick="abrirFormularioReserva()">
+                        <i class="fas fa-plus"></i> Nueva Reserva
+                    </button>
+                </div>
+                <div class="mb-4">
+                    <input type="text" class="form-control" id="filtroReservas"
+                        placeholder="🔍 Buscar por cliente o espacio..." oninput="filtrarReservas()"
+                        style="max-width:400px">
+                </div>
+            </div>
+
+            <!-- ====== MODO CLIENTE ====== -->
+            <div class="reservas-cliente-only d-none">
+
+                <!-- SECCIÓN: EXPLORAR ESPACIOS Y RESERVAR -->
+                <div class="section-header mb-3">
+                    <div>
+                        <h2><i class="fas fa-compass"></i> Explorar Espacios</h2>
+                        <p>Encuentra el espacio ideal y realiza tu reserva</p>
+                    </div>
                 </div>
 
-                <!-- Horarios Bloqueados Section -->
-                <div id="horarios" class="section d-none">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1>⏱️ Horarios Bloqueados</h1>
-                        <button class="btn btn-primary" onclick="abrirBloqueoDialog()">+ Bloquear Horario</button>
+                <!-- Filtros de búsqueda -->
+                <div class="cliente-search-bar mb-4">
+                    <div class="csb-input-wrap">
+                        <i class="fas fa-search csb-icon"></i>
+                        <input type="text" id="buscarEspacio" class="form-control csb-input"
+                            placeholder="Buscar por nombre, tipo o ubicación..."
+                            oninput="filtrarEspaciosSlider()">
+                    </div>
+                    <select id="filtroTipoEspacio" class="form-select csb-select"
+                        onchange="filtrarEspaciosSlider()">
+                        <option value="">Todos los tipos</option>
+                        <option value="SALA_REUNION">🤝 Sala de Reunión</option>
+                        <option value="OFICINA">🖥️ Oficina</option>
+                        <option value="COWORKING">☕ Coworking</option>
+                        <option value="AUDITORIO">🎭 Auditorio</option>
+                    </select>
+                    <select id="filtroCapacidad" class="form-select csb-select"
+                        onchange="filtrarEspaciosSlider()">
+                        <option value="">Cualquier capacidad</option>
+                        <option value="1-5">1 - 5 personas</option>
+                        <option value="6-15">6 - 15 personas</option>
+                        <option value="16-50">16 - 50 personas</option>
+                        <option value="50+">Más de 50</option>
+                    </select>
+                </div>
+
+                <!-- Slider de espacios -->
+                <div class="espacios-slider-section mb-5">
+                    <div class="espacios-slider-header">
+                        <h5 class="slider-title"><i class="fas fa-door-open"></i> Espacios Disponibles</h5>
+                        <div class="slider-nav">
+                            <button class="slider-btn" onclick="scrollSlider(-1)">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="slider-btn" onclick="scrollSlider(1)">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="espacios-slider-track" id="espacios-slider">
+                        <div class="slider-loading">
+                            <i class="fas fa-spinner fa-spin"></i> Cargando espacios...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN: MIS RESERVAS (Historial del cliente) -->
+                <div class="section-header mb-3">
+                    <div>
+                        <h2><i class="fas fa-history"></i> Mis Reservas</h2>
+                        <p>Historial completo y estado de pagos</p>
+                    </div>
+                </div>
+                <div class="historial-filters mb-4">
+                    <div class="csb-input-wrap" style="flex:1;max-width:320px">
+                        <i class="fas fa-search csb-icon"></i>
+                        <input type="text" id="filtroReservas" class="form-control csb-input"
+                            placeholder="Buscar reserva..." oninput="filtrarReservas()">
+                    </div>
+                    <select id="filtroEstadoReserva" class="form-select" style="max-width:200px"
+                        onchange="filtrarReservasPorEstado()">
+                        <option value="">Todos los estados</option>
+                        <option value="PENDIENTE">⏳ Pendiente</option>
+                        <option value="CONFIRMADA">✅ Confirmada</option>
+                        <option value="COMPLETADA">🏁 Completada</option>
+                        <option value="CANCELADA">❌ Cancelada</option>
+                    </select>
+                </div>
+
+            </div><!-- fin .reservas-cliente-only -->
+
+            <!-- LISTA COMPARTIDA admin + cliente -->
+            <div id="reservas-list" class="row g-3"></div>
+
+        </div>
+
+        <!-- ================== ESPACIOS ================== -->
+        <div id="espacios" class="section d-none">
+            <div class="section-header">
+                <div>
+                    <h2><i class="fas fa-door-open"></i> Espacios</h2>
+                    <p>Administra los espacios disponibles para reserva</p>
+                </div>
+                <button class="btn-primary-action" onclick="abrirFormularioEspacio()">
+                    <i class="fas fa-plus"></i> Nuevo Espacio
+                </button>
+            </div>
+            <div class="mb-4">
+                <input type="text" class="form-control" id="filtroEspacios"
+                    placeholder="🔍 Buscar por nombre o tipo..." oninput="filtrarEspacios()"
+                    style="max-width:400px">
+            </div>
+            <div id="espacios-grid" class="spaces-grid"></div>
+        </div>
+
+        <!-- ================== CLIENTES ================== -->
+        <div id="clientes" class="section d-none">
+            <div class="section-header">
+                <div>
+                    <h2><i class="fas fa-users"></i> Clientes</h2>
+                    <p>Directorio de clientes registrados</p>
+                </div>
+                <button class="btn-primary-action" onclick="abrirFormularioCliente()">
+                    <i class="fas fa-plus"></i> Nuevo Cliente
+                </button>
+            </div>
+            <div class="mb-4">
+                <input type="text" class="form-control" id="filtroClientes"
+                    placeholder="🔍 Buscar por nombre, DNI o email..." oninput="filtrarClientes()"
+                    style="max-width:400px">
+            </div>
+            <div class="table-responsive" style="background:white;border-radius:12px;box-shadow:var(--shadow-md)">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre Completo</th>
+                            <th>DNI</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientes-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================== PAGOS ================== -->
+        <div id="pagos" class="section d-none">
+            <div class="section-header">
+                <div>
+                    <h2><i class="fas fa-credit-card"></i> Pagos</h2>
+                    <p>Los pagos se crean automáticamente con cada reserva confirmada</p>
+                </div>
+            </div>
+            <div class="mb-4">
+                <input type="text" class="form-control" id="filtroPagos"
+                    placeholder="🔍 Buscar por reserva o monto..." oninput="filtrarPagos()"
+                    style="max-width:400px">
+            </div>
+            <div class="table-responsive" style="background:white;border-radius:12px;box-shadow:var(--shadow-md)">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID Pago</th>
+                            <th>Reserva #</th>
+                            <th>Cliente</th>
+                            <th>Monto</th>
+                            <th>Método</th>
+                            <th>Estado</th>
+                            <th>F. Registro</th>
+                            <th>F. Pago</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pagos-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================== DESCUENTOS ================== -->
+        <div id="descuentos" class="section d-none">
+            <div class="section-header">
+                <div>
+                    <h2><i class="fas fa-tags"></i> Descuentos</h2>
+                    <p>Códigos de descuento y promociones activas</p>
+                </div>
+                <button class="btn-primary-action" onclick="abrirFormularioDescuento()">
+                    <i class="fas fa-plus"></i> Nuevo Descuento
+                </button>
+            </div>
+            <div class="mb-4">
+                <input type="text" class="form-control" id="filtroDescuentos"
+                    placeholder="🔍 Buscar por código o descripción..." oninput="filtrarDescuentos()"
+                    style="max-width:400px">
+            </div>
+            <div class="table-responsive" style="background:white;border-radius:12px;box-shadow:var(--shadow-md)">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descripción</th>
+                            <th>Descuento %</th>
+                            <th>Monto Mínimo</th>
+                            <th>Vigencia</th>
+                            <th>Usos</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="descuentos-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================== EVALUACIONES ================== -->
+        <div id="evaluaciones" class="section d-none">
+            <div class="section-header">
+                <div>
+                    <h2><i class="fas fa-star"></i> Evaluaciones</h2>
+                    <p>Calificaciones y reseñas de los clientes</p>
+                </div>
+            </div>
+            <div class="mb-4">
+                <input type="text" class="form-control" id="filtroEvaluaciones"
+                    placeholder="🔍 Buscar por cliente o email..." oninput="filtrarEvaluaciones()"
+                    style="max-width:400px">
+            </div>
+            <div class="table-responsive" style="background:white;border-radius:12px;box-shadow:var(--shadow-md)">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Reserva #</th>
+                            <th>Cliente</th>
+                            <th>Email</th>
+                            <th>Calificación</th>
+                            <th>Comentario</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="evaluaciones-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================== NOTIFICACIONES ================== -->
+        <div id="notificaciones" class="section d-none">
+            <div class="section-header">
+                <div>
+                    <h2><i class="fas fa-bell"></i> Notificaciones</h2>
+                    <p>Centro de notificaciones del sistema</p>
+                </div>
+            </div>
+            <div class="mb-4">
+                <select class="form-control" id="filtroNotificaciones" onchange="filtrarNotificaciones()"
+                    style="max-width:300px">
+                    <option value="">Todas las notificaciones</option>
+                    <option value="RESERVA">📅 Reservas</option>
+                    <option value="PAGO">💳 Pagos</option>
+                    <option value="EVALUACION">⭐ Evaluaciones Pendientes</option>
+                    <option value="RECORDATORIO">⏰ Recordatorios</option>
+                    <option value="PROMOCION">🎁 Promociones</option>
+                    <option value="SISTEMA">⚙️ Sistema</option>
+                </select>
+            </div>
+            <div id="notificaciones-list" class="cards-grid"></div>
+        </div>
+
+        <!-- ================== HORARIOS ================== -->
+        <div id="horarios" class="section d-none">
+            <div class="section-header">
+                <div>
+                    <h2><i class="fas fa-clock"></i> Horarios Bloqueados</h2>
+                    <p>Gestión de bloqueos de horario por espacio</p>
+                </div>
+                <button class="btn-primary-action" onclick="abrirBloqueoDialog()">
+                    <i class="fas fa-plus"></i> Bloquear Horario
+                </button>
+            </div>
+            <div class="mb-4">
+                <input type="text" class="form-control" id="filtroHorarios"
+                    placeholder="🔍 Buscar por espacio o razón..." oninput="filtrarHorarios()"
+                    style="max-width:400px">
+            </div>
+            <div id="horarios-list" class="cards-grid"></div>
+        </div>
+
+        <!-- ================== REPORTES ================== -->
+        <div id="reportes" class="section d-none">
+            <div class="section-header">
+                <div>
+                    <h2><i class="fas fa-file-alt"></i> Reportes</h2>
+                    <p>Exportar datos del sistema en formato CSV</p>
+                </div>
+            </div>
+            <div class="reports-grid">
+                <div class="report-card">
+                    <div class="report-icon">📅</div>
+                    <h3>Reservas</h3>
+                    <p>Exportar listado completo de reservas del sistema</p>
+                    <button class="btn-primary-action mt-3" style="width:100%;justify-content:center"
+                        onclick="exportarReservasCSV()">
+                        <i class="fas fa-download"></i> Descargar CSV
+                    </button>
+                </div>
+                <div class="report-card">
+                    <div class="report-icon">🏛️</div>
+                    <h3>Espacios</h3>
+                    <p>Exportar catálogo de espacios disponibles</p>
+                    <button class="btn-primary-action mt-3" style="width:100%;justify-content:center"
+                        onclick="exportarEspaciosCSV()">
+                        <i class="fas fa-download"></i> Descargar CSV
+                    </button>
+                </div>
+                <div class="report-card">
+                    <div class="report-icon">👥</div>
+                    <h3>Clientes</h3>
+                    <p>Exportar directorio de clientes registrados</p>
+                    <button class="btn-primary-action mt-3" style="width:100%;justify-content:center"
+                        onclick="exportarClientesCSV()">
+                        <i class="fas fa-download"></i> Descargar CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ============================================================
+     MODALES
+     ============================================================ -->
+
+<!-- Modal Cliente -->
+<div class="modal fade" id="clienteModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header text-white border-0" id="clienteModalHeader"
+                style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);">
+                <h5 class="modal-title fw-bold" id="clienteModalTitle">
+                    <i class="fas fa-user-plus"></i> Nuevo Cliente
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="clienteForm">
+                    <input type="hidden" id="clienteId">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Nombre</label>
+                            <input type="text" class="form-control form-control-lg" id="clienteNombre"
+                                placeholder="Juan" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Apellido</label>
+                            <input type="text" class="form-control form-control-lg" id="clienteApellido"
+                                placeholder="Pérez" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">DNI</label>
+                            <input type="text" class="form-control form-control-lg" id="clienteDni"
+                                placeholder="12345678" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" class="form-control form-control-lg" id="clienteEmail"
+                                placeholder="correo@ejemplo.com" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Teléfono</label>
+                            <input type="text" class="form-control form-control-lg" id="clienteTelefono"
+                                placeholder="+51 987654321" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top-0 pb-4 px-4">
+                <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary btn-lg px-4" onclick="guardarCliente()">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Espacio -->
+<div class="modal fade" id="espacioModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header text-white border-0"
+                style="background: linear-gradient(135deg, #0891b2 0%, #2563eb 100%);">
+                <h5 class="modal-title fw-bold" id="espacioModalTitle">
+                    <i class="fas fa-door-open"></i> Nuevo Espacio
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <form id="espacioForm">
+                    <input type="hidden" id="espacioId">
+                    <div class="row g-0">
+                        <!-- Columna izquierda: datos -->
+                        <div class="col-md-7 p-4 border-end">
+                            <p class="text-muted small fw-semibold text-uppercase mb-3" style="letter-spacing:.06em">Datos del espacio</p>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Nombre <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="espacioNombre" placeholder="Ej: Sala Premium A" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Tipo <span class="text-danger">*</span></label>
+                                <select class="form-select" id="espacioTipo" required>
+                                    <option value="">-- Seleccione el tipo --</option>
+                                    <option value="SALA_REUNION">Sala de Reunión</option>
+                                    <option value="OFICINA">Oficina</option>
+                                    <option value="COWORKING">Coworking</option>
+                                    <option value="AUDITORIO">Auditorio</option>
+                                </select>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold small">Capacidad <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="espacioCapacidad" min="1" placeholder="0" required>
+                                        <span class="input-group-text text-muted small">pers.</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold small">Precio/hora <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">S/.</span>
+                                        <input type="number" step="0.01" class="form-control" id="espacioPrecio" min="0" placeholder="0.00" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label fw-semibold small">Ubicación <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="espacioUbicacion" placeholder="Ej: Piso 3, Ala Norte" required>
+                            </div>
+                        </div>
+                        <!-- Columna derecha: imagen -->
+                        <div class="col-md-5 p-4 d-flex flex-column" style="background:#f8fafc">
+                            <p class="text-muted small fw-semibold text-uppercase mb-3" style="letter-spacing:.06em">Imagen del espacio</p>
+                            <!-- Zona de preview clickeable -->
+                            <div id="espacioImgPreviewWrap"
+                                onclick="document.getElementById('espacioImagenFile').click()"
+                                style="flex:1;min-height:200px;border-radius:12px;overflow:hidden;background:#e2e8f0;display:flex;align-items:center;justify-content:center;margin-bottom:14px;border:2px dashed #cbd5e1;cursor:pointer;transition:border-color .2s;"
+                                onmouseover="this.style.borderColor='#0891b2'" onmouseout="this.style.borderColor='#cbd5e1'">
+                                <img id="espacioImgPreview" src="" alt=""
+                                    style="width:100%;height:100%;object-fit:cover;display:none;border-radius:10px;">
+                                <div id="espacioImgPlaceholder" style="display:flex;flex-direction:column;align-items:center;gap:8px;color:#94a3b8;padding:20px;text-align:center">
+                                    <i class="fas fa-cloud-upload-alt" style="font-size:2.2rem"></i>
+                                    <span style="font-size:.85rem;font-weight:600">Haz clic para subir</span>
+                                    <span style="font-size:.75rem">JPG, PNG, GIF · máx 2MB</span>
+                                </div>
+                            </div>
+                            <input type="file" class="d-none" id="espacioImagenFile"
+                                accept="image/*" onchange="previewEspacioImagen(this)">
+                            <button type="button" class="btn btn-outline-primary btn-sm w-100 mb-2"
+                                onclick="document.getElementById('espacioImagenFile').click()">
+                                <i class="fas fa-folder-open me-1"></i> Seleccionar imagen
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-sm w-100 d-none" id="btnQuitarImagen"
+                                onclick="quitarImagenEspacio()">
+                                <i class="fas fa-times me-1"></i> Quitar imagen
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0 px-4 pb-4 pt-2 justify-content-end gap-2">
+                <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="guardarEspacio()">
+                    <i class="fas fa-save me-1"></i> Guardar espacio
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Reserva -->
+<div class="modal fade" id="reservaModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header text-white border-0"
+                style="background: linear-gradient(135deg, #16a34a 0%, #0891b2 100%);">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-calendar-plus"></i> Nueva Reserva
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    onclick="getModal('reservaModal').hide()"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-0">
+                    <!-- Formulario izquierda -->
+                    <div class="col-md-5 pe-md-3 border-end">
+                        <form id="reservaForm">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">Cliente</label>
+                                    <select class="form-select" id="reservaIdCliente" required>
+                                        <option value="">-- Seleccione un cliente --</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">Espacio</label>
+                                    <select class="form-select" id="reservaIdEspacio" required
+                                        onchange="calcularMonto(); renderCalendarioDisponibilidad()">
+                                        <option value="">-- Seleccione un espacio --</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">Fecha y Hora Inicio</label>
+                                    <input type="datetime-local" class="form-control" id="reservaFechaInicio"
+                                        required onchange="calcularMonto(); renderCalendarioDisponibilidad()">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">Fecha y Hora Fin</label>
+                                    <input type="datetime-local" class="form-control" id="reservaFechaFin"
+                                        required onchange="calcularMonto(); renderCalendarioDisponibilidad()">
+                                </div>
+                                <div class="col-12">
+                                    <div class="alert alert-info d-none" id="monto-preview">
+                                        <strong>💰 Monto Estimado: </strong>
+                                        <span id="monto-valor">S/. 0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Calendario derecha -->
+                    <div class="col-md-7 ps-md-3">
+                        <div id="calendario-disponibilidad">
+                            <div class="text-muted text-center py-5">
+                                <i class="fas fa-calendar-alt" style="font-size:2.5rem;color:#94a3b8"></i>
+                                <p class="mt-3 mb-0">Selecciona un espacio para ver<br>la disponibilidad semanal</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 pb-4 px-4">
+                <button type="button" class="btn btn-light border"
+                    onclick="getModal('reservaModal').hide()">Cancelar</button>
+                <button type="button" class="btn btn-success btn-lg px-4" onclick="guardarReserva()">
+                    <i class="fas fa-check"></i> Crear Reserva
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirmación -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header" id="confirmModalHeader">
+                <h5 class="modal-title fw-bold" id="confirmModalTitle">Confirmar acción</h5>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div id="confirmModalIcon" style="font-size:3rem;margin-bottom:1rem;"></div>
+                <p id="confirmModalMessage" class="mb-0 fw-semibold" style="font-size:1.05rem;"></p>
+            </div>
+            <div class="modal-footer justify-content-center gap-2 border-top-0 pb-4">
+                <button type="button" class="btn btn-light border" data-bs-dismiss="modal"
+                    id="confirmModalCancelBtn">Cancelar</button>
+                <button type="button" class="btn" id="confirmModalOkBtn">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Bloqueo Horario -->
+<div class="modal fade" id="bloqueoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header text-dark border-0"
+                style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                <h5 class="modal-title fw-bold text-white">
+                    <i class="fas fa-clock"></i> Bloquear Horario
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="bloqueoForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Espacio</label>
+                        <select class="form-select" id="bloqueoIdEspacio" required>
+                            <option value="">-- Seleccione un espacio --</option>
+                        </select>
                     </div>
                     <div class="mb-3">
-                        <input type="text" class="form-control" id="filtroHorarios" placeholder="🔍 Buscar por espacio o razón..." oninput="filtrarHorarios()">
+                        <label class="form-label fw-bold">Fecha y Hora Inicio</label>
+                        <input type="datetime-local" class="form-control" id="bloqueoFechaInicio" required>
                     </div>
-                    <div id="horarios-list" class="row g-3"></div>
-                </div>
-
-                <!-- Reportes Section -->
-                <div id="reportes" class="section d-none">
-                    <h1 class="mb-4">📋 Reportes y Exportación</h1>
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <div class="card border-0 shadow-sm text-center">
-                                <div class="card-body py-5">
-                                    <h5 class="card-title mb-3">📅 Reservas</h5>
-                                    <button class="btn btn-primary w-100" onclick="exportarReservasCSV()">Descargar CSV</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card border-0 shadow-sm text-center">
-                                <div class="card-body py-5">
-                                    <h5 class="card-title mb-3">🏛️ Espacios</h5>
-                                    <button class="btn btn-primary w-100" onclick="exportarEspaciosCSV()">Descargar CSV</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card border-0 shadow-sm text-center">
-                                <div class="card-body py-5">
-                                    <h5 class="card-title mb-3">👥 Clientes</h5>
-                                    <button class="btn btn-primary w-100" onclick="exportarClientesCSV()">Descargar CSV</button>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Fecha y Hora Fin</label>
+                        <input type="datetime-local" class="form-control" id="bloqueoFechaFin" required>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Cliente PREMIUM -->
-    <div class="modal fade" id="clienteModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header text-white border-0" id="clienteModalHeader" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
-                    <h5 class="modal-title fw-bold" id="clienteModalTitle">👤 Nuevo Cliente</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <form id="clienteForm">
-                        <input type="hidden" id="clienteId">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-primary">👤 Nombre</label>
-                                <input type="text" class="form-control form-control-lg" id="clienteNombre" placeholder="Juan" style="border-color: #6366f1;" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-primary">👤 Apellido</label>
-                                <input type="text" class="form-control form-control-lg" id="clienteApellido" placeholder="Pérez" style="border-color: #6366f1;" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-primary">🆔 DNI</label>
-                                <input type="text" class="form-control form-control-lg" id="clienteDni" placeholder="12345678" style="border-color: #6366f1;" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-primary">📧 Email</label>
-                                <input type="email" class="form-control form-control-lg" id="clienteEmail" placeholder="correo@ejemplo.com" style="border-color: #6366f1;" required>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label fw-bold text-primary">📱 Teléfono</label>
-                                <input type="text" class="form-control form-control-lg" id="clienteTelefono" placeholder="+51 987654321" style="border-color: #6366f1;" required>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
-                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary btn-lg px-4" onclick="guardarCliente()">💾 Guardar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Espacio -->
-    <div class="modal fade" id="espacioModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="espacioModalTitle">Nuevo Espacio</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="espacioForm">
-                        <input type="hidden" id="espacioId">
-                        <div class="mb-3">
-                            <label class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="espacioNombre" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Tipo</label>
-                            <select class="form-select" id="espacioTipo" required>
-                                <option value="">-- Seleccione el tipo --</option>
-                                <option value="SALA_REUNION">Sala de Reunión</option>
-                                <option value="OFICINA">Oficina</option>
-                                <option value="COWORKING">Coworking</option>
-                                <option value="AUDITORIO">Auditorio</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Capacidad</label>
-                            <input type="number" class="form-control" id="espacioCapacidad" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Ubicación</label>
-                            <input type="text" class="form-control" id="espacioUbicacion" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Precio por Hora</label>
-                            <input type="number" step="0.01" class="form-control" id="espacioPrecio" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="guardarEspacio()">Guardar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Reserva -->
-    <div class="modal fade" id="reservaModal" tabindex="-1">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Nueva Reserva</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="getModal('reservaModal').hide()"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-0">
-                        <!-- Formulario izquierda -->
-                        <div class="col-md-5 pe-md-3 border-end">
-                            <form id="reservaForm">
-                                <div class="row g-3">
-                                    <div class="col-12">
-                                        <label class="form-label fw-bold">Cliente</label>
-                                        <select class="form-select" id="reservaIdCliente" required>
-                                            <option value="">-- Seleccione un cliente --</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label fw-bold">Espacio</label>
-                                        <select class="form-select" id="reservaIdEspacio" required onchange="calcularMonto(); renderCalendarioDisponibilidad()">
-                                            <option value="">-- Seleccione un espacio --</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label fw-bold">Fecha y Hora Inicio</label>
-                                        <input type="datetime-local" class="form-control" id="reservaFechaInicio" required onchange="calcularMonto(); renderCalendarioDisponibilidad()">
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label fw-bold">Fecha y Hora Fin</label>
-                                        <input type="datetime-local" class="form-control" id="reservaFechaFin" required onchange="calcularMonto(); renderCalendarioDisponibilidad()">
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="alert alert-info d-none" id="monto-preview">
-                                            <strong>💰 Monto Estimado: </strong><span id="monto-valor">S/. 0.00</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <!-- Calendario derecha -->
-                        <div class="col-md-7 ps-md-3">
-                            <div id="calendario-disponibilidad">
-                                <div class="text-muted text-center py-5">
-                                    <i style="font-size:2rem">📅</i>
-                                    <p class="mt-2 mb-0">Selecciona un espacio para ver<br>la disponibilidad semanal</p>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Razón del bloqueo</label>
+                        <input type="text" class="form-control" id="bloqueoRazon"
+                            placeholder="Ej: Mantenimiento, limpieza..." required>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="getModal('reservaModal').hide()">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="guardarReserva()">Crear Reserva</button>
-                </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top-0 pb-4 px-4">
+                <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" onclick="guardarBloqueo()">
+                    <i class="fas fa-lock"></i> Bloquear
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal Confirmación -->
-    <div class="modal fade" id="confirmModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content">
-                <div class="modal-header" id="confirmModalHeader">
-                    <h5 class="modal-title" id="confirmModalTitle">Confirmar acción</h5>
-                </div>
-                <div class="modal-body text-center py-4">
-                    <div id="confirmModalIcon" style="font-size:3rem;margin-bottom:1rem;"></div>
-                    <p id="confirmModalMessage" class="mb-0 fw-semibold" style="font-size:1.05rem;"></p>
-                </div>
-                <div class="modal-footer justify-content-center gap-2">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="confirmModalCancelBtn">Cancelar</button>
-                    <button type="button" class="btn" id="confirmModalOkBtn">Confirmar</button>
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- ============================================================
+     SCRIPTS
+     ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script>
+<script>
+// Toggle sidebar móvil
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+}
 
-    <!-- Modal Bloqueo Horario -->
-    <div class="modal fade" id="bloqueoModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title">⏱️ Bloquear Horario</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="bloqueoForm">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Espacio</label>
-                            <select class="form-select" id="bloqueoIdEspacio" required>
-                                <option value="">-- Seleccione un espacio --</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Fecha y Hora Inicio</label>
-                            <input type="datetime-local" class="form-control" id="bloqueoFechaInicio" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Fecha y Hora Fin</label>
-                            <input type="datetime-local" class="form-control" id="bloqueoFechaFin" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Razón del bloqueo</label>
-                            <input type="text" class="form-control" id="bloqueoRazon" placeholder="Ej: Mantenimiento, limpieza..." required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-warning" onclick="guardarBloqueo()">⏱️ Bloquear</button>
-                </div>
-            </div>
-        </div>
-    </div>
+document.addEventListener('click', function(e) {
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.querySelector('.btn-menu-mobile');
+    if (sidebar && menuBtn && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+        sidebar.classList.remove('active');
+    }
+});
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/app.js"></script>
+// Títulos de secciones
+const _navTitles = {
+    dashboard: 'Dashboard', reservas: 'Reservas', espacios: 'Espacios',
+    clientes: 'Clientes', pagos: 'Pagos', descuentos: 'Descuentos',
+    horarios: 'Horarios Bloqueados', evaluaciones: 'Evaluaciones',
+    notificaciones: 'Notificaciones', reportes: 'Reportes'
+};
+
+// Extender showSection para topbar y nav activo
+const _origShowSectionWrapper = window.showSection;
+window.showSection = function(section) {
+    if (_origShowSectionWrapper) _origShowSectionWrapper(section);
+    const titleEl = document.getElementById('page-title');
+    if (titleEl && _navTitles[section]) titleEl.textContent = _navTitles[section];
+    document.querySelectorAll('.nav-item').forEach(function(item) { item.classList.remove('active'); });
+    const navItem = document.getElementById('nav-' + section);
+    if (navItem) navItem.classList.add('active');
+    if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('active');
+
+    // Si es seccion reservas y es cliente → cargar vista cliente
+    if (section === 'reservas' && window.currentUser && window.currentUser.rol === 'CLIENTE') {
+        loadClienteReservas();
+    }
+};
+
+// ================================================================
+// PERMISOS POR ROL
+// ================================================================
+function applyRolePermissions(user) {
+    if (!user) return;
+    const isCliente = user.rol === 'CLIENTE';
+
+    // Sidebar: ocultar items de admin para clientes
+    const adminOnlyNavIds = ['nav-clientes','nav-pagos','nav-descuentos','nav-horarios','nav-reportes'];
+    adminOnlyNavIds.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.display = isCliente ? 'none' : '';
+            // Ocultar también el nav-label "Operaciones" si es cliente y todos sus hijos están ocultos
+        }
+    });
+
+    // Ocultar nav-label "Gestión" sub-items y ajustar visibilidad de labels
+    if (isCliente) {
+        // Ocultar sección entera de gestión excepto pagos propios
+        document.querySelectorAll('.nav-section').forEach(function(section) {
+            const label = section.querySelector('.nav-label');
+            const visibleItems = Array.from(section.querySelectorAll('.nav-item')).filter(function(i) {
+                return i.style.display !== 'none';
+            });
+            if (label && visibleItems.length === 0) {
+                section.style.display = 'none';
+            }
+        });
+    }
+
+    // Actualizar nombre en topbar
+    const nameEl = document.getElementById('user-display');
+    if (nameEl) nameEl.textContent = user.nombre || user.username || 'Usuario';
+
+    // Mostrar vista apropiada en reservas
+    const adminView = document.querySelector('.reservas-admin-only');
+    const clienteView = document.querySelector('.reservas-cliente-only');
+    if (adminView && clienteView) {
+        if (isCliente) {
+            adminView.classList.add('d-none');
+            clienteView.classList.remove('d-none');
+        } else {
+            adminView.classList.remove('d-none');
+            clienteView.classList.add('d-none');
+        }
+    }
+}
+
+// ================================================================
+// AUTH VIEWS: cambiar entre login / registro / recuperar
+// ================================================================
+function switchAuthView(view) {
+    ['login', 'register', 'forgot'].forEach(function(v) {
+        const el = document.getElementById('view-' + v);
+        if (el) el.classList.add('d-none');
+    });
+    const target = document.getElementById('view-' + view);
+    if (target) {
+        target.classList.remove('d-none');
+        ['register-error','register-success','forgot-error','forgot-success','login-error'].forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('d-none');
+        });
+    }
+}
+
+// ================================================================
+// SLIDER DE ESPACIOS (cliente)
+// ================================================================
+let _espaciosSliderData = [];
+
+const _tipoIcono = {
+    'SALA_REUNION': '🤝', 'OFICINA': '🖥️', 'COWORKING': '☕',
+    'AUDITORIO': '🎭', 'DEFAULT': '🏢'
+};
+const _tipoLabel = {
+    'SALA_REUNION': 'Sala Reunión', 'OFICINA': 'Oficina',
+    'COWORKING': 'Coworking', 'AUDITORIO': 'Auditorio'
+};
+
+async function loadEspaciosSlider() {
+    const track = document.getElementById('espacios-slider');
+    if (!track) return;
+    try {
+        const res = await fetch('/api/espacios');
+        const data = await res.json();
+        if (data.success && data.data) {
+            _espaciosSliderData = data.data.filter(function(e) { return e.estado === 'ACTIVO'; });
+            renderEspaciosSlider(_espaciosSliderData);
+        }
+    } catch (e) {
+        if (track) track.innerHTML = '<div class="slider-loading text-danger"><i class="fas fa-exclamation-circle"></i> Error al cargar espacios</div>';
+    }
+}
+
+function renderEspaciosSlider(espacios) {
+    const track = document.getElementById('espacios-slider');
+    if (!track) return;
+    if (!espacios || espacios.length === 0) {
+        track.innerHTML = '<div class="slider-loading">No hay espacios disponibles</div>';
+        return;
+    }
+    track.innerHTML = espacios.map(function(e) {
+        const icono = _tipoIcono[e.tipo] || _tipoIcono['DEFAULT'];
+        const tipoLabel = _tipoLabel[e.tipo] || e.tipo;
+        const precio = (e.precioPorHora || 0).toFixed(2);
+        const headerContent = e.urlImagen 
+            ? '<img src="' + e.urlImagen + '" alt="' + e.nombre + '" style="width:100%;height:100%;object-fit:cover;display:block">'
+            : '<div class="slide-icon" style="font-size:2.5rem">' + icono + '</div>';
+        return '<div class="espacio-slide-card" data-id="' + e.idEspacio + '">' +
+            '<div class="slide-card-header">' + headerContent + '</div>' +
+            '<div class="slide-card-body">' +
+                '<div class="slide-card-name" title="' + e.nombre + '">' + e.nombre + '</div>' +
+                '<div class="slide-card-meta"><span class="slide-badge">' + tipoLabel + '</span></div>' +
+                '<div class="slide-card-details">' +
+                    '<div class="slide-card-detail-row"><i class="fas fa-users" style="color:#64748b;font-size:11px"></i> ' + (e.capacidad||'-') + ' personas</div>' +
+                    '<div class="slide-card-detail-row"><i class="fas fa-map-marker-alt" style="color:#64748b;font-size:11px"></i> ' + (e.ubicacion||'Sin ubicación') + '</div>' +
+                '</div>' +
+                '<div class="slide-card-price">S/. ' + precio + ' <span>/ hora</span></div>' +
+                '<button class="btn-reservar-slide" onclick="reservarEspacioCliente(' + e.idEspacio + ')">' +
+                    '<i class="fas fa-calendar-plus"></i> Reservar' +
+                '</button>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function filtrarEspaciosSlider() {
+    const texto = (document.getElementById('buscarEspacio') ? document.getElementById('buscarEspacio').value : '').toLowerCase();
+    const tipo  = document.getElementById('filtroTipoEspacio') ? document.getElementById('filtroTipoEspacio').value : '';
+    const cap   = document.getElementById('filtroCapacidad') ? document.getElementById('filtroCapacidad').value : '';
+    let filtrados = _espaciosSliderData.filter(function(e) {
+        const matchTexto = !texto || (e.nombre||'').toLowerCase().includes(texto) ||
+                           (e.tipo||'').toLowerCase().includes(texto) ||
+                           (e.ubicacion||'').toLowerCase().includes(texto);
+        const matchTipo = !tipo || e.tipo === tipo;
+        let matchCap = true;
+        if (cap) {
+            const c = e.capacidad || 0;
+            if (cap === '1-5')  matchCap = c >= 1  && c <= 5;
+            if (cap === '6-15') matchCap = c >= 6  && c <= 15;
+            if (cap === '16-50') matchCap = c >= 16 && c <= 50;
+            if (cap === '50+')  matchCap = c > 50;
+        }
+        return matchTexto && matchTipo && matchCap;
+    });
+    renderEspaciosSlider(filtrados);
+}
+
+function scrollSlider(dir) {
+    const track = document.getElementById('espacios-slider');
+    if (track) track.scrollBy({ left: dir * 280, behavior: 'smooth' });
+}
+
+function reservarEspacioCliente(idEspacio) {
+    // Abrir modal de reserva con el espacio preseleccionado
+    abrirFormularioReserva().then(function() {
+        const sel = document.getElementById('reservaIdEspacio');
+        if (sel) {
+            sel.value = idEspacio;
+            sel.dispatchEvent(new Event('change'));
+        }
+        // Si es cliente, preseleccionar su propio ID de cliente
+        if (window.currentUser && window.currentUser.rol === 'CLIENTE') {
+            const selCliente = document.getElementById('reservaIdCliente');
+            if (selCliente) {
+                const clienteId = window.currentUser.id || window.currentUser.idCliente;
+                if (clienteId) selCliente.value = clienteId;
+            }
+        }
+    }).catch(function() {
+        abrirFormularioReserva();
+    });
+}
+
+// ================================================================
+// CARGA RESERVAS CLIENTE (historial propio)
+// ================================================================
+async function loadClienteReservas() {
+    await loadEspaciosSlider();
+    // Refrescar reservas y pagos para mostrar estado actualizado en tarjetas del cliente
+    await (window.loadReservas ? window.loadReservas() : Promise.resolve());
+    if (typeof cargarPagos === 'function') {
+        await cargarPagos();
+    }
+    renderClienteHistorial();
+}
+
+function renderClienteHistorial() {
+    let user = window.currentUser;
+    if (!user) {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+            try { user = JSON.parse(savedUser); } catch (e) {}
+        }
+    }
+    if (!user || String(user.rol || '').toUpperCase() !== 'CLIENTE') return;
+    const clienteId = user.idCliente || user.idUsuario || user.id;
+    const allReservas = window._allReservas || [];
+    const misReservas = clienteId
+        ? allReservas.filter(function(r) { return r.idCliente == clienteId; })
+        : allReservas;
+    renderReservasCliente(misReservas);
+}
+
+function renderReservasCliente(reservas) {
+    const container = document.getElementById('reservas-list');
+    if (!container) return;
+    container.innerHTML = '';
+    if (!reservas || reservas.length === 0) {
+        container.innerHTML = '<div class="col-12"><div style="text-align:center;padding:40px;color:var(--text-secondary)">' +
+            '<i class="fas fa-calendar-times" style="font-size:40px;margin-bottom:12px;display:block"></i>' +
+            '<p style="font-size:16px">No tienes reservas aún.</p>' +
+            '<button class="btn-primary-action" style="margin:0 auto" onclick="switchReservaTab(\'explorar\')">' +
+            '<i class="fas fa-plus"></i> Hacer tu primera reserva</button></div></div>';
+        return;
+    }
+    reservas.forEach(function(r) {
+        const pagos = (window._allPagos && Array.isArray(window._allPagos)) ? window._allPagos : [];
+        const pagosReserva = pagos.filter(function(p) {
+            return String(p.idReserva) === String(r.idReserva);
+        });
+
+        // Si existen multiples pagos para una reserva, priorizar el pendiente para habilitar cobro al cliente.
+        const pagoPendiente = pagosReserva.find(function(p) { return p.estadoPago === 'PENDIENTE'; });
+        const pagoRechazado = pagosReserva.find(function(p) { return p.estadoPago === 'RECHAZADO'; });
+        const pagoReciente = pagosReserva.slice().sort(function(a, b) {
+            return Number(b.idPago || 0) - Number(a.idPago || 0);
+        })[0] || null;
+        const pago = pagoPendiente || pagoRechazado || pagoReciente;
+
+        const fechaIni = r.fechaInicio ? new Date(r.fechaInicio) : null;
+        const fechaFin = r.fechaFin ? new Date(r.fechaFin) : null;
+        const fmtOpts = { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' };
+        const fechaIniStr = fechaIni ? fechaIni.toLocaleString('es-PE', fmtOpts) : '-';
+        const fechaFinStr = fechaFin ? fechaFin.toLocaleString('es-PE', fmtOpts) : '-';
+        let durHrs = '-';
+        if (fechaIni && fechaFin) durHrs = ((fechaFin - fechaIni) / 3600000).toFixed(1) + ' hrs';
+
+        const estadoBadge = '<span class="badge-estado badge-' + r.estado + '">' + r.estado + '</span>';
+        const estadoPagoRaw = pago && pago.estadoPago ? pago.estadoPago : 'PENDIENTE';
+        const estadoPagoTxt = estadoPagoRaw === 'COMPLETADO' ? 'PAGADO' : estadoPagoRaw;
+        const pagoBadgeClass = estadoPagoRaw === 'COMPLETADO' ? 'success' : (estadoPagoRaw === 'RECHAZADO' ? 'danger' : 'warning');
+        const monto = (r.montoTotal || 0).toFixed(2);
+
+        let acciones = '';
+        if (r.estado === 'PENDIENTE') {
+            acciones = '<button class="btn btn-sm btn-outline-danger" onclick="cancelarReserva(' + r.idReserva + ')">' +
+                '<i class="fas fa-times"></i> Cancelar</button>';
+        }
+
+        let accionPago = '';
+        if (pago && (estadoPagoRaw === 'PENDIENTE' || estadoPagoRaw === 'RECHAZADO') && typeof procesarPago === 'function') {
+            accionPago = '<button class="btn btn-sm btn-success" onclick="procesarPago(' + pago.idPago + ', ' + (pago.monto || r.montoTotal || 0) + ', \'\', \'\')">' +
+                '<i class="fas fa-credit-card"></i> Pagar ahora</button>';
+        }
+
+        const footerActions = [acciones, accionPago].filter(function(a) { return !!a; }).join(' ');
+
+        const col = document.createElement('div');
+        col.className = 'col-md-6 col-lg-4';
+        col.innerHTML =
+            '<div class="reserva-card">' +
+                '<div class="reserva-card-header">' +
+                    '<span class="reserva-card-id">Reserva #' + r.idReserva + '</span>' +
+                    estadoBadge +
+                '</div>' +
+                '<div class="reserva-card-body">' +
+                    '<div class="reserva-info-block">' +
+                        '<div class="reserva-info-label"><i class="fas fa-door-open"></i> Espacio</div>' +
+                        '<div class="reserva-info-value">' + (r.nombreEspacio || 'Sin nombre') + '</div>' +
+                    '</div>' +
+                    '<div class="reserva-dates">' +
+                        '<div>' +
+                            '<div class="reserva-info-label">Inicio</div>' +
+                            '<div style="font-size:12px;font-weight:600">' + fechaIniStr + '</div>' +
+                        '</div>' +
+                        '<div>' +
+                            '<div class="reserva-info-label">Fin</div>' +
+                            '<div style="font-size:12px;font-weight:600">' + fechaFinStr + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div style="font-size:12px;color:var(--text-secondary);text-align:right">⏱ ' + durHrs + '</div>' +
+                    '<div style="font-size:12px;color:var(--text-secondary)"><strong>Estado reserva:</strong> ' + (r.estado || '-') + '</div>' +
+                    '<div style="font-size:12px;color:var(--text-secondary)"><strong>Estado pago:</strong> <span class="badge bg-' + pagoBadgeClass + '">' + estadoPagoTxt + '</span></div>' +
+                    '<div class="reserva-monto">' +
+                        '<span class="reserva-monto-label">Total a pagar</span>' +
+                        '<span class="reserva-monto-value">S/. ' + monto + '</span>' +
+                    '</div>' +
+                '</div>' +
+                (footerActions ? '<div class="reserva-card-footer">' + footerActions + '</div>' : '') +
+            '</div>';
+        container.appendChild(col);
+    });
+}
+
+function filtrarReservasPorEstado() {
+    const estado = document.getElementById('filtroEstadoReserva') ? document.getElementById('filtroEstadoReserva').value : '';
+    let user = window.currentUser;
+    if (!user) {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+            try { user = JSON.parse(savedUser); } catch (e) {}
+        }
+    }
+    if (!user || String(user.rol || '').toUpperCase() !== 'CLIENTE') return;
+    const clienteId = user.idCliente || user.idUsuario || user.id;
+    let lista = window._allReservas || [];
+    if (clienteId) lista = lista.filter(function(r) { return r.idCliente == clienteId; });
+    if (estado) lista = lista.filter(function(r) { return r.estado === estado; });
+    renderReservasCliente(lista);
+}
+
+// ================================================================
+// TABS RESERVAS CLIENTE
+// ================================================================
+function switchReservaTab(tab) {
+    // Solo una vista ahora - cargar reservas
+    if (tab === 'historial' || tab === 'explorar') {
+        loadReservas().then(() => renderClienteHistorial());
+        if (_espaciosSliderData.length === 0) loadEspaciosSlider();
+    }
+}
+
+// ================================================================
+// REGISTRO DE NUEVO CLIENTE
+// ================================================================
+document.addEventListener('DOMContentLoaded', function() {
+    const regForm = document.getElementById('register-form');
+    if (regForm) {
+        regForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const errorDiv = document.getElementById('register-error');
+            const successDiv = document.getElementById('register-success');
+            errorDiv.classList.add('d-none');
+            successDiv.classList.add('d-none');
+
+            const nombre   = document.getElementById('reg-nombre').value.trim();
+            const apellido = document.getElementById('reg-apellido').value.trim();
+            const dni      = document.getElementById('reg-dni').value.trim();
+            const email    = document.getElementById('reg-email').value.trim();
+            const telefono = document.getElementById('reg-telefono').value.trim();
+            const pass1    = document.getElementById('reg-password').value;
+            const pass2    = document.getElementById('reg-password2').value;
+
+            if (pass1 !== pass2) {
+                errorDiv.textContent = 'Las contraseñas no coinciden.';
+                errorDiv.classList.remove('d-none'); return;
+            }
+            if (!/^\d{8}$/.test(dni)) {
+                errorDiv.textContent = 'El DNI debe tener exactamente 8 dígitos.';
+                errorDiv.classList.remove('d-none'); return;
+            }
+
+            const btn = regForm.querySelector('button[type="submit"]');
+            const origText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/clientes', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, apellido, dni, email, telefono, password: pass1 })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    successDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' +
+                        (data.message || '¡Cuenta creada! Ya puedes iniciar sesión con tu email.');
+                    successDiv.classList.remove('d-none');
+                    regForm.reset();
+                    setTimeout(function() { switchAuthView('login'); }, 3500);
+                } else {
+                    errorDiv.textContent = data.error || 'Error al crear la cuenta.';
+                    errorDiv.classList.remove('d-none');
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Error de conexión.';
+                errorDiv.classList.remove('d-none');
+            } finally { btn.innerHTML = origText; btn.disabled = false; }
+        });
+    }
+
+    // ================================================================
+    // RECUPERAR CONTRASEÑA
+    // ================================================================
+    const forgotForm = document.getElementById('forgot-form');
+    if (forgotForm) {
+        forgotForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const errorDiv = document.getElementById('forgot-error');
+            const successDiv = document.getElementById('forgot-success');
+            errorDiv.classList.add('d-none'); successDiv.classList.add('d-none');
+            const email = document.getElementById('forgot-email').value.trim();
+            const btn = forgotForm.querySelector('button[type="submit"]');
+            const origText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/clientes/recuperar-password', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    successDiv.innerHTML = '<i class="fas fa-envelope"></i> ' +
+                        (data.message || 'Nueva contraseña enviada a tu correo.');
+                    successDiv.classList.remove('d-none');
+                    forgotForm.reset();
+                } else {
+                    errorDiv.textContent = data.error || 'No existe una cuenta con ese email.';
+                    errorDiv.classList.remove('d-none');
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Error de conexión.';
+                errorDiv.classList.remove('d-none');
+            } finally { btn.innerHTML = origText; btn.disabled = false; }
+        });
+    }
+
+    // ================================================================
+    // LOGIN UNIFICADO (admin + cliente)
+    // ================================================================
+    const origHandleLogin = window.handleLogin;
+    window.handleLogin = async function(event) {
+        if (event) event.preventDefault();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('login-error');
+        errorDiv.classList.add('d-none');
+
+        const btn = document.querySelector('#login-form button[type="submit"]');
+        if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ingresando...'; btn.disabled = true; }
+
+        const isEmail = username.includes('@');
+        const endpoint = isEmail ? '/api/clientes/login' : '/api/auth/login';
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            if (data.success) {
+                window.currentUser = data.user;
+                localStorage.setItem('user', JSON.stringify(data.user));
+                if (data.token) localStorage.setItem('token', data.token);
+                applyRolePermissions(data.user);
+                showPage('dashboard');
+                showSection('dashboard');
+            } else {
+                // Si no es email y falló admin, intentar como cliente
+                if (!isEmail) {
+                    try {
+                        const r2 = await fetch('/api/clientes/login', {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username, password })
+                        });
+                        const d2 = await r2.json();
+                        if (d2.success) {
+                            window.currentUser = d2.user;
+                            localStorage.setItem('user', JSON.stringify(d2.user));
+                            if (d2.token) localStorage.setItem('token', d2.token);
+                            applyRolePermissions(d2.user);
+                            showPage('dashboard');
+                            showSection('dashboard');
+                            return;
+                        }
+                    } catch (_) {}
+                }
+                errorDiv.textContent = data.error || 'Credenciales inválidas';
+                errorDiv.classList.remove('d-none');
+            }
+        } catch (err) {
+            errorDiv.textContent = 'Error de conexión. ¿Está el servidor corriendo?';
+            errorDiv.classList.remove('d-none');
+        } finally {
+            if (btn) { btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión'; btn.disabled = false; }
+        }
+    };
+
+    // Re-bind login form
+    const loginFormEl = document.getElementById('login-form');
+    if (loginFormEl) {
+        loginFormEl.removeEventListener('submit', origHandleLogin);
+        loginFormEl.addEventListener('submit', window.handleLogin);
+    }
+
+    // Restaurar sesión si ya hay usuario guardado
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+        try {
+            const u = JSON.parse(savedUser);
+            window.currentUser = u;
+            applyRolePermissions(u);
+        } catch (_) {}
+    }
+});
+</script>
 </body>
 </html>
+
+
+
