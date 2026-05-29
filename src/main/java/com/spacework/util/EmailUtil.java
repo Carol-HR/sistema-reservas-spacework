@@ -12,10 +12,7 @@ public class EmailUtil {
     public static void enviarCredencialesCliente(String para, String nombreCliente, String passwordPlano) {
         String asunto = "Bienvenido a SpaceWork - Acceso a tu cuenta";
         String html = buildHtmlCredenciales(nombreCliente, passwordPlano);
-        boolean enviado = MailService.enviarCorreo(para, asunto, html);
-        if (!enviado) {
-            System.out.println("⚠️  No se pudo enviar credenciales a: " + para);
-        }
+        MailService.enviarCorreo(para, asunto, html);
     }
 
     public static String buildHtmlCredenciales(String nombre, String passwordPlano) {
@@ -45,10 +42,7 @@ public class EmailUtil {
     public static void enviarConfirmacionPago(String para, String nombreCliente, int idReserva, double montoAPagar, String metodoPago) {
         String asunto = "Confirmación de Pago - Reserva #" + idReserva;
         String html = buildHtmlConfirmacionPago(nombreCliente, idReserva, montoAPagar, metodoPago);
-        boolean enviado = MailService.enviarCorreo(para, asunto, html);
-        if (!enviado) {
-            System.out.println("⚠️  No se pudo enviar confirmación de pago a: " + para);
-        }
+        MailService.enviarCorreo(para, asunto, html);
     }
 
     public static String buildHtmlConfirmacionPago(String nombreCliente, int idReserva, double montoAPagar, String metodoPago) {
@@ -79,11 +73,7 @@ public class EmailUtil {
     public static boolean enviarFormularioEvaluacion(String para, String nombreCliente, int idReserva, String token, String baseUrl) {
         String asunto = "Formulario de Evaluación - Reserva #" + idReserva;
         String html = buildHtmlFormularioEvaluacion(nombreCliente, idReserva, token, baseUrl);
-        boolean enviado = MailService.enviarCorreo(para, asunto, html);
-        if (!enviado) {
-            System.out.println("⚠️  No se pudo enviar formulario de evaluación a: " + para);
-        }
-        return enviado;
+        return MailService.enviarCorreo(para, asunto, html);
     }
 
     public static String buildHtmlFormularioEvaluacion(String nombreCliente, int idReserva, String token, String baseUrl) {

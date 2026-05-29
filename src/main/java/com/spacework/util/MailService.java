@@ -55,7 +55,6 @@ public class MailService {
             }
         });
 
-        System.out.println("[MailService] Configurado para: " + user);
     }
 
     public static boolean enviarCorreo(String destinatario, String asunto, String cuerpoHtml) {
@@ -66,10 +65,8 @@ public class MailService {
             msg.setSubject(asunto, "UTF-8");
             msg.setContent(cuerpoHtml, "text/html; charset=UTF-8");
             Transport.send(msg);
-            System.out.println("[MailService] ✓ Correo enviado a: " + destinatario);
             return true;
         } catch (MessagingException e) {
-            System.err.println("[MailService] ✗ Error al enviar: " + e.getMessage());
             return false;
         }
     }

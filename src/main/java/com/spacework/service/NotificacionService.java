@@ -13,7 +13,8 @@ public class NotificacionService {
     public List<Map<String, Object>> listar() throws Exception {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String sql = "SELECT id_notificacion, id_usuario, tipo, asunto, mensaje, leida, fecha_creacion "
-                   + "FROM NOTIFICACIONES ORDER BY fecha_creacion DESC";
+                   + "FROM NOTIFICACIONES "
+                   + "ORDER BY leida ASC, fecha_creacion DESC";
         List<Map<String, Object>> lista = new ArrayList<>();
         Connection conn = Conexion.getConexion();
         try {
@@ -25,7 +26,7 @@ public class NotificacionService {
                 m.put("tipo", rs.getString("tipo"));
                 m.put("asunto", rs.getString("asunto"));
                 m.put("mensaje", rs.getString("mensaje"));
-                m.put("leida", rs.getInt("leida"));
+                m.put("estado", rs.getInt("leida") == 1 ? "LEIDA" : "NO_LEIDA");
                 java.util.Date fc = rs.getDate("fecha_creacion");
                 m.put("fechaCreacion", fc != null ? sdf.format(fc) : "");
                 lista.add(m);

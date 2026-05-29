@@ -50,7 +50,7 @@ public class ClienteService {
         try {
             EmailUtil.enviarCredencialesCliente(c.getEmail(), c.getNombre(), passwordPlano);
         } catch (Exception emailEx) {
-            System.out.println("[REGISTRO] Email no enviado: " + emailEx.getMessage());
+            // Envío de correo no crítico
         }
     }
 
@@ -91,7 +91,7 @@ public class ClienteService {
         try {
             EmailUtil.enviarCredencialesCliente(email, c.getNombre(), nuevaPassword);
         } catch (Exception emailEx) {
-            System.out.println("[RECUPERAR] Email no enviado: " + emailEx.getMessage());
+            // Envío de correo no crítico
         }
     }
 

@@ -104,22 +104,17 @@ public class EspacioDAO {
         e.setPrecioPorHora(rs.getDouble("precio_por_hora"));
         e.setEstado(rs.getString("estado"));
         
-        // Lee imagen_url (columna CLOB en Oracle)
         String imagen = null;
         try {
             Clob clob = rs.getClob("imagen_url");
-            System.out.println("[DEBUG imagen] ID=" + rs.getInt("id_espacio") + " clob=" + (clob == null ? "NULL" : "len=" + clob.length()));
             if (clob != null && clob.length() > 0) {
                 imagen = clob.getSubString(1, (int) Math.min(clob.length(), (long) Integer.MAX_VALUE));
-                System.out.println("[DEBUG imagen] ID=" + rs.getInt("id_espacio") + " leidos=" + imagen.length() + " inicio=" + imagen.substring(0, Math.min(60, imagen.length())));
             }
         } catch (Exception ex1) {
-            System.err.println("[DEBUG imagen] CLOB fallo ID=" + e.getIdEspacio() + " error: " + ex1.getClass().getSimpleName() + ": " + ex1.getMessage());
             try {
                 imagen = rs.getString("imagen_url");
-                System.out.println("[DEBUG imagen] getString ID=" + e.getIdEspacio() + " resultado=" + (imagen == null ? "NULL" : imagen.length() + " chars"));
             } catch (Exception ex2) {
-                System.err.println("[DEBUG imagen] getString tambien fallo: " + ex2.getMessage());
+                // imagen_url no disponible
             }
         }
         

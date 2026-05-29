@@ -49,9 +49,6 @@ function getAuthHeaders() {
     const headers = { 'Content-Type': 'application/json' };
     if (token) {
         headers['Authorization'] = 'Bearer ' + token;
-        console.log('✓ Token enviado en header');
-    } else {
-        console.warn('⚠ Sin token en localStorage');
     }
     return headers;
 }
@@ -2297,67 +2294,75 @@ function renderNotificaciones(notificaciones) {
     container.innerHTML = '';
 
     if (!notificaciones || notificaciones.length === 0) {
-        container.innerHTML = `<div class="col-12">
-            <div style="text-align:center;padding:48px;color:#64748b">
-                <div style="font-size:48px;margin-bottom:12px">🔔</div>
-                <p style="font-size:16px;font-weight:600">Sin notificaciones</p>
-                <p style="font-size:14px">Las notificaciones aparecerán aquí cuando haya actividad.</p>
-            </div></div>`;
+        container.innerHTML = '<div class="col-12"><div style="text-align:center;padding:40px;color:#64748b">' +
+            '<div style="font-size:40px;margin-bottom:10px">🔔</div>' +
+            '<p style="font-size:15px;font-weight:600">Sin notificaciones</p></div></div>';
         return;
     }
 
     const tipoConfig = {
-        'EVALUACION': { icono:'⭐', color:'#f59e0b', bg:'#fffbeb', badge:'#f59e0b' },
-        'PAGO':       { icono:'💳', color:'#10b981', bg:'#f0fdf4', badge:'#10b981' },
-        'RESERVA':    { icono:'📅', color:'#3b82f6', bg:'#eff6ff', badge:'#3b82f6' },
-        'RECORDATORIO':{ icono:'⏰', color:'#8b5cf6', bg:'#f5f3ff', badge:'#8b5cf6' },
+        'EVALUACION':   { icono:'⭐', color:'#f59e0b' },
+        'PAGO':         { icono:'💳', color:'#10b981' },
+        'RESERVA':      { icono:'📅', color:'#3b82f6' },
+        'RECORDATORIO': { icono:'⏰', color:'#8b5cf6' },
     };
 
-    notificaciones.forEach(n => {
-        const cfg = tipoConfig[n.tipo] || { icono:'📌', color:'#64748b', bg:'#f8fafc', badge:'#64748b' };
-        const leida = n.leida == 1;
-        const fecha = n.fechaCreacion ? new Date(n.fechaCreacion).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' }) : '';
+    const th = 'padding:8px 12px;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px';
+    let html = '<div class="col-12"><div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06)">' +
+        '<table style="width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed">' +
+        '<colgroup><col style="width:36px"><col style="width:90px"><col style="width:95px"><col style="width:auto"><col style="width:170px"></colgroup>' +
+        '<thead><tr style="background:#f8fafc;border-bottom:2px solid #e2e8f0">' +
+        '<th style="' + th + ';text-align:center"></th>' +
+        '<th style="' + th + ';text-align:left">Tipo</th>' +
+        '<th style="' + th + ';text-align:left">Fecha</th>' +
+        '<th style="' + th + ';text-align:left">Detalle</th>' +
+        '<th style="' + th + ';text-align:center">Acción</th>' +
+        '</tr></thead><tbody>';
 
-        // Limpiar el mensaje: ocultar tokens técnicos
-        let mensajeLimpio = n.mensaje || '';
-        if (n.tipo === 'EVALUACION') {
-            const emailMatch = mensajeLimpio.match(/Email:\s*([\w.@+-]+)/);
-            const clienteMatch = mensajeLimpio.match(/Cliente:\s*([^|]+)/);
-            mensajeLimpio = emailMatch
-                ? '📧 ' + emailMatch[1].trim() + (clienteMatch ? ' — ' + clienteMatch[1].trim() : '')
-                : mensajeLimpio.split('Token:')[0].trim() || mensajeLimpio;
-        }
-
-        const botonAccion = (n.tipo === 'EVALUACION' && !leida)
-            ? `<button id="btn-eval-${n.idNotificacion}"
-                onclick="enviarEvaluacion(${n.idNotificacion}, this)"
-                style="width:100%;padding:9px;border:none;border-radius:8px;background:#f0fdf4;color:#16a34a;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s"
-                onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
-                📧 Enviar evaluación al cliente
-               </button>`
-            : (n.tipo === 'EVALUACION' && leida)
-            ? `<div style="text-align:center;padding:8px;background:#f0fdf4;border-radius:8px;color:#16a34a;font-size:13px;font-weight:600">✅ Email enviado</div>`
+    notificaciones.forEach(function(n, idx) {
+        const cfg    = tipoConfig[n.tipo] || { icono:'📌', color:'#64748b' };
+        const leida  = n.leida == 1;
+        const fecha  = n.fechaCreacion
+            ? new Date(n.fechaCreacion).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' })
             : '';
 
-        const col = document.createElement('div');
-        col.className = 'col-md-6 col-lg-4';
-        col.innerHTML = `
-            <div style="border-radius:12px;overflow:hidden;box-shadow:${leida ? 'none' : '0 2px 12px rgba(0,0,0,0.1)'};background:#fff;border:1px solid ${leida ? '#e2e8f0' : cfg.color + '40'};height:100%;display:flex;flex-direction:column;opacity:${leida ? '.75' : '1'}">
-                <div style="padding:14px 18px;background:${leida ? '#f8fafc' : cfg.bg};display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid ${leida ? '#e2e8f0' : cfg.color + '30'}">
-                    <div style="display:flex;align-items:center;gap:8px">
-                        <span style="font-size:20px">${cfg.icono}</span>
-                        <span style="font-size:13px;font-weight:700;color:${cfg.color};text-transform:uppercase;letter-spacing:.5px">${n.tipo}</span>
-                    </div>
-                    <span style="font-size:11px;color:#94a3b8">${fecha}</span>
-                </div>
-                <div style="padding:14px 18px;flex:1">
-                    <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:6px">${n.asunto || ''}</div>
-                    <div style="font-size:13px;color:#64748b;line-height:1.5">${mensajeLimpio}</div>
-                </div>
-                ${botonAccion ? `<div style="padding:12px 18px;border-top:1px solid #f1f5f9">${botonAccion}</div>` : ''}
-            </div>`;
-        container.appendChild(col);
+        // Limpiar mensaje
+        let detalle = n.asunto || '';
+        let cliente = '';
+        if (n.tipo === 'EVALUACION' && n.mensaje) {
+            const emailMatch   = n.mensaje.match(/Email:\s*([\w.@+-]+)/);
+            const clienteMatch = n.mensaje.match(/Cliente:\s*([^|]+)/);
+            if (emailMatch)   cliente = emailMatch[1].trim();
+            if (clienteMatch) cliente += ' — ' + clienteMatch[1].trim();
+        }
+
+        let accion = '';
+        if (n.tipo === 'EVALUACION' && !leida) {
+            accion = '<button id="btn-eval-' + n.idNotificacion + '" onclick="enviarEvaluacion(' + n.idNotificacion + ', this)" ' +
+                'style="padding:5px 10px;border:none;border-radius:6px;background:#f0fdf4;color:#16a34a;font-weight:600;font-size:11px;cursor:pointer;white-space:nowrap">' +
+                '📧 Enviar email</button>';
+        } else if (n.tipo === 'EVALUACION' && leida) {
+            accion = '<span style="font-size:11px;color:#16a34a;font-weight:600">✅ Enviado</span>';
+        }
+
+        const bg  = idx % 2 === 0 ? '#fff' : '#f8fafc';
+        const op  = leida ? 'opacity:.6' : '';
+        html += '<tr style="background:' + bg + ';border-bottom:1px solid #f1f5f9;' + op + '">' +
+            '<td style="padding:8px 12px;text-align:center;font-size:16px">' + cfg.icono + '</td>' +
+            '<td style="padding:8px 12px">' +
+                '<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:' + cfg.color + '20;color:' + cfg.color + '">' + n.tipo + '</span>' +
+            '</td>' +
+            '<td style="padding:8px 12px;color:#64748b;font-size:11px;white-space:nowrap">' + fecha + '</td>' +
+            '<td style="padding:8px 12px;overflow:hidden">' +
+                '<div style="font-weight:600;color:#1e293b;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + detalle + '</div>' +
+                (cliente ? '<div style="font-size:11px;color:#64748b;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + cliente + '</div>' : '') +
+            '</td>' +
+            '<td style="padding:8px 12px;text-align:center">' + accion + '</td>' +
+            '</tr>';
     });
+
+    html += '</tbody></table></div></div>';
+    container.innerHTML = html;
 }
 
 function filtrarNotificaciones() {

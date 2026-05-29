@@ -33,34 +33,26 @@ public class SpaceWorkApplication {
             if (conn == null) return;
             try {
                 conn.createStatement().execute("ALTER TABLE ESPACIOS ADD (imagen_url CLOB)");
-                System.out.println("[DB] Columna imagen_url CLOB agregada a ESPACIOS");
             } catch (java.sql.SQLException e2) {
                 String msg = String.valueOf(e2.getMessage());
                 if (msg.contains("1430") || msg.contains("ya existe") || msg.contains("already")) {
                     try {
                         java.sql.ResultSet rs = conn.createStatement().executeQuery(
                             "SELECT data_type FROM user_tab_columns WHERE table_name='ESPACIOS' AND column_name='IMAGEN_URL'");
-                        if (rs.next()) {
-                            String dtype = rs.getString(1);
-                            if (!"CLOB".equals(dtype)) {
-                                conn.createStatement().execute("ALTER TABLE ESPACIOS ADD (imagen_url_tmp CLOB)");
-                                conn.createStatement().execute("UPDATE ESPACIOS SET imagen_url_tmp = imagen_url");
-                                conn.commit();
-                                conn.createStatement().execute("ALTER TABLE ESPACIOS DROP COLUMN imagen_url");
-                                conn.createStatement().execute("ALTER TABLE ESPACIOS RENAME COLUMN imagen_url_tmp TO imagen_url");
-                                conn.commit();
-                            }
+                        if (rs.next() && !"CLOB".equals(rs.getString(1))) {
+                            conn.createStatement().execute("ALTER TABLE ESPACIOS ADD (imagen_url_tmp CLOB)");
+                            conn.createStatement().execute("UPDATE ESPACIOS SET imagen_url_tmp = imagen_url");
+                            conn.commit();
+                            conn.createStatement().execute("ALTER TABLE ESPACIOS DROP COLUMN imagen_url");
+                            conn.createStatement().execute("ALTER TABLE ESPACIOS RENAME COLUMN imagen_url_tmp TO imagen_url");
+                            conn.commit();
                         }
                         rs.close();
-                    } catch (Exception ex2) {
-                        System.out.println("[DB] No se pudo convertir columna: " + ex2.getMessage());
-                    }
+                    } catch (Exception ignored) {}
                 }
             }
             com.spacework.util.Conexion.cerrar(conn);
-        } catch (Exception ex) {
-            System.out.println("[DB] No se pudo verificar columna imagen_url: " + ex.getMessage());
-        }
+        } catch (Exception ignored) {}
     }
 
     private void sincronizarPagos() {
@@ -78,12 +70,9 @@ public class SpaceWorkApplication {
                        + "r.fecha_inicio, SYSDATE "
                        + "FROM RESERVAS r "
                        + "WHERE r.id_reserva NOT IN (SELECT DISTINCT id_reserva FROM PAGOS)";
-            int rows = conn.createStatement().executeUpdate(sql);
+            conn.createStatement().executeUpdate(sql);
             conn.commit();
             conn.close();
-            if (rows > 0) System.out.println("[DB] " + rows + " pagos sincronizados");
-        } catch (Exception e) {
-            System.out.println("[DB] Sincronización de pagos: " + e.getMessage());
-        }
+        } catch (Exception ignored) {}
     }
 }

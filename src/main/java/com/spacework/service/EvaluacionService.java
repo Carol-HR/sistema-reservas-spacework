@@ -19,26 +19,26 @@ public class EvaluacionService {
 
     public List<Map<String, Object>> listar() throws Exception {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String sql = "SELECT e.id_evaluacion, e.id_reserva, e.id_cliente, e.calificacion, "
-                   + "e.comentario, e.fecha_evaluacion AS fecha_ref, c.nombre, c.apellido, c.email, "
-                   + "es.nombre as nombreEspacio, 'COMPLETADA' as estado "
-                   + "FROM EVALUACIONES e "
-                   + "JOIN CLIENTES c ON e.id_cliente = c.id_cliente "
-                   + "JOIN RESERVAS r ON e.id_reserva = r.id_reserva "
-                   + "JOIN ESPACIOS es ON r.id_espacio = es.id_espacio "
-                   + "UNION ALL "
-                   + "SELECT 0 AS id_evaluacion, r.id_reserva, r.id_cliente, 0 AS calificacion, "
-                   + "NULL AS comentario, p.fecha_pago AS fecha_ref, c.nombre, c.apellido, c.email, "
-                   + "es.nombre as nombreEspacio, "
-                   + "CASE WHEN EXISTS (SELECT 1 FROM NOTIFICACIONES n "
-                   + "WHERE n.tipo = 'EVALUACION' AND n.asunto = 'Solicitar evaluación - Reserva #' || r.id_reserva AND n.leida = 1) "
-                   + "THEN 'ENVIADO' ELSE 'PENDIENTE' END as estado "
-                   + "FROM PAGOS p JOIN RESERVAS r ON p.id_reserva = r.id_reserva "
+        String sql = "SELECT COALESCE(e.id_evaluacion, 0) AS id_evaluacion, "
+                   + "r.id_reserva, r.id_cliente, COALESCE(e.calificacion, 0) AS calificacion, "
+                   + "e.comentario, "
+                   + "CASE WHEN e.id_evaluacion IS NOT NULL THEN e.fecha_evaluacion ELSE p.fecha_pago END AS fecha_ref, "
+                   + "c.nombre, c.apellido, c.email, es.nombre AS nombreEspacio, "
+                   + "CASE "
+                   + "  WHEN e.id_evaluacion IS NOT NULL THEN 'COMPLETADA' "
+                   + "  WHEN EXISTS (SELECT 1 FROM NOTIFICACIONES n WHERE n.tipo = 'EVALUACION' AND n.asunto LIKE '%' || r.id_reserva AND n.leida = 1) THEN 'ENVIADO' "
+                   + "  ELSE 'PENDIENTE' "
+                   + "END AS estado "
+                   + "FROM PAGOS p "
+                   + "JOIN RESERVAS r ON p.id_reserva = r.id_reserva "
                    + "JOIN CLIENTES c ON r.id_cliente = c.id_cliente "
                    + "JOIN ESPACIOS es ON r.id_espacio = es.id_espacio "
+                   + "LEFT JOIN EVALUACIONES e ON r.id_reserva = e.id_reserva "
                    + "WHERE p.estado_pago = 'COMPLETADO' "
-                   + "AND NOT EXISTS (SELECT 1 FROM EVALUACIONES ev WHERE ev.id_reserva = p.id_reserva) "
-                   + "ORDER BY fecha_ref DESC";
+                   + "ORDER BY CASE WHEN e.id_evaluacion IS NOT NULL THEN 0 "
+                   + "         WHEN EXISTS (SELECT 1 FROM NOTIFICACIONES n WHERE n.tipo = 'EVALUACION' AND n.asunto LIKE '%' || r.id_reserva) THEN 1 "
+                   + "         ELSE 2 END, "
+                   + "fecha_ref DESC";
 
         List<Map<String, Object>> lista = new ArrayList<>();
         Connection conn = Conexion.getConexion();
