@@ -7,7 +7,7 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  zap_scan:
+  zap-scan:
     runs-on: ubuntu-latest
     name: Escaneo de Seguridad Dinámico (DAST)
 
@@ -58,10 +58,11 @@ jobs:
         run: ls -la .zap || true
 
       - name: Subir reporte ZAP como artefacto
-        uses: actions/upload-artifact@v4
         if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
         with:
-          name: zap-report-${{ github.run_id }}
+          name: zap-scan-report
           path: .zap/
           if-no-files-found: warn
 
