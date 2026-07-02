@@ -53,12 +53,17 @@ jobs:
           allow_issue_writing: false
           cmd_options: '-J .zap/report_json.json -w .zap/report_md.md -r .zap/report_html.html'
 
+      - name: Verificar archivos de reporte
+        if: always()
+        run: ls -la .zap || true
+
       - name: Subir reporte ZAP como artefacto
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: zap-report
+          name: zap-report-${{ github.run_id }}
           path: .zap/
+          if-no-files-found: warn
 
       - name: Apagar aplicación
         if: always()
