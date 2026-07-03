@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class Conexion {
 
     // Ajusta estos valores si tu Docker usa otro puerto, SID o usuario
-    private static final String URL  = "jdbc:oracle:thin:@localhost:1521:XE";
+    private static final String URL = "jdbc:oracle:thin:@192.168.18.235:1521:XE";
     private static final String USER = "spacework";
     private static final String PASS = "spacework";
 

@@ -8,7 +8,7 @@ import java.sql.*;
 public class UsuarioDAO {
 
     public Usuario autenticar(String username, String passwordHash) throws SQLException {
-        String sql = "SELECT * FROM USUARIOS WHERE username = ? AND password_hash = ? AND estado = 'ACTIVO'";
+        String sql = "SELECT * FROM USUARIOS WHERE username = ? AND password = ? AND estado = 'ACTIVO'";
         Connection conn = null;
         try {
             conn = Conexion.getConexion();
@@ -46,17 +46,19 @@ public class UsuarioDAO {
         Usuario u = new Usuario();
         u.setIdUsuario(rs.getInt("id_usuario"));
         u.setUsername(rs.getString("username"));
-        u.setPasswordHash(rs.getString("password_hash"));
+        u.setPasswordHash(rs.getString("password"));
         u.setNombre(rs.getString("nombre"));
         u.setEmail(rs.getString("email"));
-        u.setRol(rs.getString("rol"));
+        u.setIdRol(rs.getInt("id_rol"));
         u.setEstado(rs.getString("estado"));
-        u.setFechaRegistro(rs.getDate("fecha_registro"));
+        u.setFechaCreacion(rs.getDate("fecha_creacion"));
+        u.setFechaActualizacion(rs.getDate("fecha_actualizacion"));
+        u.setSalt(rs.getString("salt"));
         return u;
     }
 
     public void actualizarContraseña(String username, String nuevoHash) throws SQLException {
-        String sql = "UPDATE USUARIOS SET password_hash = ? WHERE username = ?";
+        String sql = "UPDATE USUARIOS SET password = ? WHERE username = ?";
         Connection conn = null;
         try {
             conn = Conexion.getConexion();

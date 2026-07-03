@@ -32,7 +32,7 @@ Este script crea el usuario, tablas, secuencias, triggers y datos iniciales en u
 Editar el archivo `src/main/java/com/spacework/util/Conexion.java` con los datos de la base de datos:
 
 ```java
-private static final String URL      = "jdbc:oracle:thin:@//localhost:1521/XE";
+private static final String URL  = "jdbc:oracle:thin:@//localhost:1521/XEPDB1";
 private static final String USUARIO  = "spacework";
 private static final String PASSWORD = "tu_password";
 ```
